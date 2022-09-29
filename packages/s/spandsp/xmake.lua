@@ -21,7 +21,7 @@ package("spandsp")
             table.insert(configs, "--with-pic")
         end
 
-         for _, dep in ipairs(package:orderdeps()) do
+        for _, dep in ipairs(package:orderdeps()) do
             local fetchinfo = dep:fetch()
             if fetchinfo then
                 for _, includedir in ipairs(fetchinfo.includedirs or fetchinfo.sysincludedirs) do
