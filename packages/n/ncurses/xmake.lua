@@ -20,10 +20,16 @@ package("ncurses")
             package:add("links", "ncurses", "form", "panel", "menu")
             package:add("includedirs", "include/ncurses", "include")
         end
+        package:add("links", "tic", "tinfo")
     end)
 
     on_install("linux", "macosx", "bsd", function (package)
-        local configs = {"--without-manpages", "--enable-sigwinch", "--with-gpm=no"}
+        local configs = {"--without-manpages", "--enable-sigwinch", "--with-gpm=no", "--with-ticlib=tic",
+                "--with-termlib=tinfo", "--with-versioned-syms", "--disable-wattr-macros",
+                "--disable-relink", "--enable-overwrite", "--with-xterm-kbs=del",
+                " --enable-const", "--enable-echo", "--without-ada", "--without-tests",
+                "--without-progs", "--enable-symlinks", "--disable-termcap"
+        }
         table.insert(configs, "--with-debug=" .. (package:debug() and "yes" or "no"))
         if package:config("widec") then
             table.insert(configs, "--enable-widec")
