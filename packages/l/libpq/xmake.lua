@@ -7,6 +7,7 @@ package("libpq")
         return version:gsub("%.", "_")
     end})
     add_versions("14.1", "14809c9f669851ab89b344a50219e85b77f3e93d9df9e255b9781d8d60fcfbc9")
+    add_versions("13.8", "12e37368e8f56efe4155a0152d8ed10bde898426d4a519bf0a83bbb2e4efd235")
 
     add_deps("krb5", "openssl", "zlib")
     if is_plat("linux") then
@@ -26,6 +27,11 @@ package("libpq")
         if package:config("pic") ~= false then
             table.insert(configs, "--with-pic")
         end
+
+        if package:version_str() == "13.8" then
+            table.insert(configs, "LIBS=-lpthread -ldl")
+        end
+
         import("package.tools.autoconf").install(package, configs, {packagedeps = {"openssl", "zlib"}})
     end)
 
