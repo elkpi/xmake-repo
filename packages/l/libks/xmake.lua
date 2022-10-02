@@ -24,7 +24,7 @@ package("libks")
 
         table.insert(configs, "-DCMAKE_C_FLAGS=" .. table.concat(cflags, " "))
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
-        table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
+        table.insert(configs, "-DKS_STATIC=" .. (package:config("shared") and "OFF" or "ON"))
         import("package.tools.cmake").install(package, configs)
     end)
 
