@@ -2,9 +2,11 @@ package("speex")
     set_homepage("https://www.speex.org/")
     set_description("Speex voice codec mirror - THIS IS A MIRROR, DEVELOPMENT HAPPENS AT https://gitlab.xiph.org/xiph/speex")
 
-    add_urls("https://github.com/xiph/speex/archive/refs/tags/$(version).tar.gz",
-             "https://github.com/xiph/speex.git")
-    add_versions("Speex-1.2.1", "beaf2642e81a822eaade4d9ebf92e1678f301abfc74a29159c4e721ee70fdce0")
+    add_urls("https://github.com/xiph/speex/archive/refs/tags/Speex-$(version).tar.gz", {alias = "github"})
+    add_urls("https://github.com/xiph/speex.git", {alias = "git"})
+
+    add_versions("github:1.2.1", "beaf2642e81a822eaade4d9ebf92e1678f301abfc74a29159c4e721ee70fdce0")
+    add_versions("git:1.2.1", "Speex-1.2.1")
 
     add_deps("autoconf", "automake", "libtool")
 
