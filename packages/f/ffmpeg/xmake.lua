@@ -24,6 +24,7 @@ package("ffmpeg")
         add_versions("git:5.1.1", "n5.1.1")
         add_versions("git:5.0.1", "n5.0.1")
         add_versions("git:4.0.2", "n4.0.2")
+        add_versions("git:3.2.18", "n3.2.18")
     
         add_configs("gpl",              {description = "Enable GPL code", default = true, type = "boolean"})
         add_configs("ffprobe",          {description = "Enable ffprobe program.", default = false, type = "boolean"})
