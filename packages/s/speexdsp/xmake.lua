@@ -2,9 +2,11 @@ package("speexdsp")
     set_homepage("https://speex.org")
     set_description("Speex audio processing library - THIS IS A MIRROR, DEVELOPMENT HAPPENS AT https://gitlab.xiph.org/xiph/speexdsp")
 
-    add_urls("https://github.com/xiph/speexdsp/archive/refs/tags/$(version).tar.gz",
-             "https://github.com/xiph/speexdsp.git")
-    add_versions("SpeexDSP-1.2.1", "d17ca363654556a4ff1d02cc13d9eb1fc5a8642c90b40bd54ce266c3807b91a7")
+    add_urls("https://github.com/xiph/speexdsp/archive/refs/tags/SpeexDSP-$(version).tar.gz", {alias = "github"})
+    add_urls("https://github.com/xiph/speexdsp.git", {alias = "git"})
+
+    add_versions("github:1.2.1", "d17ca363654556a4ff1d02cc13d9eb1fc5a8642c90b40bd54ce266c3807b91a7")
+    add_versions("git:1.2.1", "SpeexDSP-1.2.1")
 
     add_deps("autoconf", "automake", "libtool")
 
