@@ -21,6 +21,9 @@ package("libopus")
             table.insert(configs, "-DOPUS_STACK_PROTECTOR=OFF")
         end
         import("package.tools.cmake").install(package, configs)
+
+        local sed_argv = {"-i", "s/Version:.*/Version: " .. package:version_str() .. "/g", path.join(package:installdir("lib", "pkgconfig"), "opus.pc")}
+        os.vrunv("sed", sed_argv)
     end)
 
     on_test(function (package)

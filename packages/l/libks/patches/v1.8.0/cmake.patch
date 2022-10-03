@@ -1,0 +1,20 @@
+diff -auNr a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt	2022-10-01 21:52:10.599994467 +0800
++++ b/CMakeLists.txt	2022-10-01 21:51:54.447903071 +0800
+@@ -319,7 +319,7 @@
+ 		execute_process(COMMAND ${GZIP_CMD} -f -9 -n changelog.Debian)
+ 
+ 		# Install changelog
+-		install(FILES "${CMAKE_BINARY_DIR}/changelog.Debian.gz" COMPONENT "runtime" DESTINATION "share/doc/${CPACK_DEBIAN_PACKAGE_NAME}")
++		# install(FILES "${CMAKE_BINARY_DIR}/changelog.Debian.gz" COMPONENT "runtime" DESTINATION "share/doc/${CPACK_DEBIAN_PACKAGE_NAME}")
+ 
+ 		# Delete changelog related variables
+ 		unset(CHANGELOG_HEADER)
+@@ -577,7 +577,6 @@
+ 	install(FILES cmake/FindConfig.cmake COMPONENT "runtime" DESTINATION include/libks/cmake)
+ 	install(FILES cmake/FindConfigCpp.cmake COMPONENT "runtime" DESTINATION include/libks/cmake)
+ 	install(FILES cmake/AddLibBacktrace.cmake COMPONENT "runtime" DESTINATION include/libks/cmake)
+-	install(FILES ${PROJECT_BINARY_DIR}/copyright COMPONENT "runtime" DESTINATION share/doc/libks)
+ 	install(EXPORT LibKSConfig COMPONENT "runtime" DESTINATION include/libks/cmake)
+ 
+ 	# Set uninstall target
