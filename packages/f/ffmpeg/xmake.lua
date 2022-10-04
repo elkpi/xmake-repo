@@ -37,6 +37,7 @@ package("ffmpeg")
         add_configs("libx265",          {description = "Enable libx265 decoder.", default = false, type = "boolean"})
         add_configs("iconv",            {description = "Enable libiconv library.", default = false, type = "boolean"})
         add_configs("hardcoded-tables", {description = "Enable hardcoded tables.", default = true, type = "boolean"})
+        add_configs("avresample",       {description = "Enable libavresample.", default = false, type = "boolean"})
     end
 
     add_links("avfilter", "avdevice", "avformat", "avcodec", "swscale", "swresample", "avutil")
