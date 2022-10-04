@@ -11,10 +11,10 @@ package("sofia-sip")
 
     add_deps("autoconf", "automake", "libtool")
     add_deps("openssl", "zlib")
-    add_syslinks("pthread", "dl")
 
     on_install(function (package)
         local configs = {}
+
         table.insert(configs, "--enable-shared=" .. (package:config("shared") and "yes" or "no"))
         if package:debug() then
             table.insert(configs, "--enable-debug")
@@ -22,6 +22,8 @@ package("sofia-sip")
         if package:is_plat("linux") and package:config("pic") ~= false then
             table.insert(configs, "--with-pic")
         end
+
+        table.insert(configs, "LIBS=-lpthread -ldl")
         import("package.tools.autoconf").install(package, configs)
     end)
 
