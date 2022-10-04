@@ -11,7 +11,7 @@ package("sofia-sip")
 
     add_deps("autoconf", "automake", "libtool")
     add_deps("openssl", "zlib")
-    add_syslinks("pthread")
+    add_syslinks("pthread", "dl")
 
     on_install(function (package)
         local configs = {}
