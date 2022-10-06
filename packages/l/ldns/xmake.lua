@@ -9,10 +9,16 @@ package("ldns")
     add_versions("1.8.3",  "c3f72dd1036b2907e3a56e6acf9dfb2e551256b3c1bbd9787942deeeb70e7860")
     add_versions("1.7.1",  "8ac84c16bdca60e710eea75782356f3ac3b55680d40e1530d7cea474ac208229")
     add_versions("1.6.17", "8b88e059452118e8949a2752a55ce59bc71fa5bc414103e17f5b6b06f9bcc8cd")
-    add_versions("1.5.1",  "f0672f0efd6f3285858f1f940a6de807f04a303119d3bc4b8095fbc88a6f1faa")
 
     add_deps("autoconf", "automake", "libtool")
-    add_deps("openssl")
+
+    on_load(function (package)
+        if package:version():lt("1.7") then
+            package:add("deps", "openssl 1.0.2u")
+        else
+            package:add("deps", "openssl")
+        end
+    end)
 
     on_install(function (package)
         local configs = {}
@@ -40,7 +46,12 @@ package("ldns")
         end
 
 	    os.vrunv("autoreconf", {"-fi"})
-        import("package.tools.autoconf").install(package, configs)
+        if package:version():lt("1.7") then
+            import("package.tools.autoconf").build(package, configs)
+            import("package.tools.make").make(package, {"install-h", "install-lib"})
+        else
+            import("package.tools.autoconf").install(package, configs)
+        end
     end)
 
     on_test(function (package)
