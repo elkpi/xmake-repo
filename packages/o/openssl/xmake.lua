@@ -94,8 +94,14 @@ package("openssl")
         if package:debug() then
             table.insert(configs, "--debug")
         end
+        if package:version_str() == "1.0.2u" then
+            table.insert(configs, "-fPIC")
+        end
         os.vrunv("./config", configs, {envs = buildenvs})
-        local makeconfigs = {CFLAGS = buildenvs.CFLAGS, ASFLAGS = buildenvs.ASFLAGS}
+        local makeconfigs = {}
+        if package:version_str() ~= "1.0.2u" then
+            makeconfigs = {CFLAGS = buildenvs.CFLAGS, ASFLAGS = buildenvs.ASFLAGS}
+        end
         import("package.tools.make").build(package, makeconfigs)
         import("package.tools.make").make(package, {"install_sw"})
         if package:config("shared") then

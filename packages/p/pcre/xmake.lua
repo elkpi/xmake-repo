@@ -3,8 +3,11 @@ package("pcre")
     set_homepage("https://www.pcre.org/")
     set_description("A Perl Compatible Regular Expressions Library")
 
-    set_urls("https://github.com/xmake-mirror/pcre/releases/download/$(version)/pcre-$(version).tar.bz2")
-    add_versions("8.45", "4dae6fdcd2bb0bb6c37b5f97c33c2be954da743985369cddac3546e3218bffb8")
+    set_urls("https://github.com/xmake-mirror/pcre/releases/download/$(version)/pcre-$(version).tar.bz2", {alias = "xmake"})
+    set_urls("https://sourceforge.net/projects/pcre/files/pcre/$(version)/pcre-$(version).tar.gz", {alias = "sf"})
+    add_versions("xmake:8.45", "4dae6fdcd2bb0bb6c37b5f97c33c2be954da743985369cddac3546e3218bffb8")
+    add_versions("sf:8.45", "4e6ce03e0336e8b4a3d6c2b70b1c5e18590a5673a98186da90d4f33c23defc09")
+    add_versions("8.32", "d5d8634b36baf3d08be442a627001099583b397f456bc795304a013383b6423a")
 
     if is_plat("windows") then
         add_deps("cmake")
