@@ -39,6 +39,8 @@ package("ffmpeg")
         add_configs("libx264",          {description = "Enable libx264 decoder.", default = false, type = "boolean"})
         add_configs("libx265",          {description = "Enable libx265 decoder.", default = false, type = "boolean"})
         add_configs("iconv",            {description = "Enable libiconv library.", default = false, type = "boolean"})
+        add_configs("vaapi",            {description = "Enable vaapi library.", default = false, type = "boolean"})
+        add_configs("vdpau",            {description = "Enable vdpau library.", default = false, type = "boolean"})
         add_configs("hardcoded-tables", {description = "Enable hardcoded tables.", default = true, type = "boolean"})
         add_configs("avresample",       {description = "Enable libavresample.", default = false, type = "boolean"})
     end
@@ -143,9 +145,6 @@ package("ffmpeg")
             table.insert(configs, "--enable-debug")
         else
             table.insert(configs, "--disable-debug")
-        end
-        if package:config("pic") ~= false then
-            table.insert(configs, "--enable-pic")
         end
         if package:is_plat("android") then
             import("core.base.option")
