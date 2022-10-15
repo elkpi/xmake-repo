@@ -10,8 +10,10 @@ package("x264")
     add_deps("nasm")
     add_configs("toolchains", {readonly = true, description = "Set package toolchains only for cross-compilation."})
 
-    add_syslinks("pthread", "dl")
-    on_install("linux", "macosx", function (package)
+    if not is_plat("android") then
+        add_syslinks("pthread", "dl")
+    end
+    on_install("linux", "macosx", "android", function (package)
         local configs = {"--disable-avs", "--disable-lsmash", "--disable-lavf", "--disable-bashcompletion"}
         table.insert(configs, "--enable-" .. (package:configs("shared") and "shared" or "static"))
         if package:config("pic") ~= false then
