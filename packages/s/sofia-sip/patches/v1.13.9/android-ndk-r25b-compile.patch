@@ -1,0 +1,70 @@
+--- a/libsofia-sip-ua/su/su_pthread_port.c	2022-09-16 04:38:36.000000000 +0800
++++ b/libsofia-sip-ua/su/su_pthread_port.c	2022-10-16 00:01:10.819557871 +0800
+@@ -156,7 +156,7 @@
+ 
+ /* -- Clones ------------------------------------------------------------ */
+ 
+-struct clone_args
++struct sofia_clone_args
+ {
+   su_port_create_f*create;
+   su_root_t       *parent;
+@@ -170,7 +170,7 @@
+ };
+ 
+ static void *su_pthread_port_clone_main(void *varg);
+-static void su_pthread_port_return_to_parent(struct clone_args *arg,
++static void su_pthread_port_return_to_parent(struct sofia_clone_args *arg,
+ 					     int retval);
+ static su_msg_function su_pthread_port_clone_break;
+ 
+@@ -233,7 +233,7 @@
+ 			    su_root_init_f init,
+ 			    su_root_deinit_f deinit)
+ {
+-  struct clone_args arg = {
++  struct sofia_clone_args arg = {
+     /* create: */ NULL,
+     /* parent: */ NULL,
+     /* magic: */  NULL,
+@@ -304,7 +304,7 @@
+  */
+ static void *su_pthread_port_clone_main(void *varg)
+ {
+-  struct clone_args *arg = (struct clone_args *)varg;
++  struct sofia_clone_args *arg = (struct sofia_clone_args *)varg;
+   su_task_r task;
+   int zap = 1;
+ 
+@@ -382,7 +382,7 @@
+ }
+ 
+ /* Signal that parent can resume execution */
+-static void su_pthread_port_return_to_parent(struct clone_args *arg,
++static void su_pthread_port_return_to_parent(struct sofia_clone_args *arg,
+ 					     int retval)
+ {
+   arg->retval = retval;
+--- a/libsofia-sip-ua/tport/ws.h	2022-09-16 04:38:36.000000000 +0800
++++ b/libsofia-sip-ua/tport/ws.h	2022-10-16 00:10:59.599595891 +0800
+@@ -28,7 +28,7 @@
+ #include <openssl/ssl.h>
+ #include <openssl/err.h>
+ 
+-#if defined(_MSC_VER) || defined(__APPLE__) || defined(__FreeBSD__) || (defined(__SVR4) && defined(__sun)) 
++#if defined(_MSC_VER) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__ANDROID__) || (defined(__SVR4) && defined(__sun)) 
+ #define __bswap_64(x) \
+   x = (x>>56) | \
+     ((x<<40) & 0x00FF000000000000) | \
+--- a/libsofia-sip-ua/sresolv/sres.c	2022-09-16 04:38:36.000000000 +0800
++++ b/libsofia-sip-ua/sresolv/sres.c	2022-10-16 00:14:21.504363945 +0800
+@@ -76,6 +76,9 @@
+ 
+ #if HAVE_IP_RECVERR || HAVE_IPV6_RECVERR
+ #include <linux/types.h>
++#ifdef __ANDROID__
++#include <linux/time.h>
++#endif
+ #include <linux/errqueue.h>
+ #include <sys/uio.h>
+ #endif

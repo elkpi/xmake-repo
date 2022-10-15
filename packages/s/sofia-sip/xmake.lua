@@ -10,7 +10,13 @@ package("sofia-sip")
     add_includedirs("include", "include/sofia-sip-1.13")
 
     add_deps("autoconf", "automake", "libtool")
-    add_deps("openssl", "zlib")
+    add_deps("openssl")
+    if is_plat("android") then
+        add_syslinks("z")
+        add_patches("v1.13.9", path.join(os.scriptdir(), "patches", "v1.13.9", "android-compile-ndk-25.patch"), "f1ddf591da1a6fa3583ca577f20dc40043e3e3768584c5b1160d0a396415343e")
+    else
+        add_deps("zlib")
+    end
 
     on_install(function (package)
         local configs = {}
@@ -23,7 +29,9 @@ package("sofia-sip")
             table.insert(configs, "--with-pic")
         end
 
-        table.insert(configs, "LIBS=-lpthread -ldl")
+        if not is_plat("android") then
+            table.insert(configs, "LIBS=-lpthread -ldl")
+        end
         import("package.tools.autoconf").install(package, configs)
     end)
 
