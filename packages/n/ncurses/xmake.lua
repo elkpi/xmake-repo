@@ -23,7 +23,7 @@ package("ncurses")
         package:add("links", "tic", "tinfo")
     end)
 
-    on_install("linux", "macosx", "bsd", function (package)
+    on_install("linux", "macosx", "bsd", "android", function (package)
         local configs = {"--without-manpages", "--enable-sigwinch", "--with-gpm=no", "--with-ticlib=tic",
                 "--with-termlib=tinfo", "--with-versioned-syms", "--disable-wattr-macros",
                 "--disable-relink", "--enable-overwrite", "--with-xterm-kbs=del",
