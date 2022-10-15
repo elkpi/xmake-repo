@@ -56,7 +56,6 @@ package("pcre")
             table.insert(configs, "--enable-debug")
         end
         if is_plat("android") then
-            import("core.base.option")
             import("core.tool.toolchain")
             local ndk = toolchain.load("ndk", {plat = package:plat(), arch = package:arch()})
             local cxflags =  ndk:get("cxflags")
