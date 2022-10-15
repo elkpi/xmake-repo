@@ -23,10 +23,14 @@ package("libtiff")
                         webp       = "libwebp"}
 
     add_deps("cmake")
-    on_load("windows", "mingw", "macosx", "linux", "bsd", function (package)
+    on_load("windows", "mingw", "macosx", "linux", "bsd", "android", function (package)
         for config, dep in pairs(configdeps) do
             if package:config(config) then
-                package:add("deps", dep)
+                if config == "zlib" and is_plat("android") then
+                    package:add("syslinks", "z")
+                else
+                    package:add("deps", dep)
+                end
             end
         end
     end)
