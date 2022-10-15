@@ -12,7 +12,9 @@ package("pcre")
     if is_plat("windows") then
         add_deps("cmake")
     end
-    add_deps("zlib")
+    if not is_plat("android") then
+        add_deps("zlib")
+    end
 
     add_configs("jit", {description = "Enable jit.", default = true, type = "boolean"})
     add_configs("bitwidth", {description = "Set the code unit width.", default = "8", values = {"8", "16", "32"}})
@@ -38,7 +40,7 @@ package("pcre")
         import("package.tools.cmake").install(package, configs)
     end)
 
-    on_install("macosx", "linux", "mingw", "cross", function (package)
+    on_install("macosx", "linux", "mingw", "cross", "android", function (package)
         local configs = {}
         table.insert(configs, "--enable-shared=" .. (package:config("shared") and "yes" or "no"))
         table.insert(configs, "--enable-static=" .. (package:config("shared") and "no" or "yes"))
@@ -53,7 +55,37 @@ package("pcre")
         if package:debug() then
             table.insert(configs, "--enable-debug")
         end
-        import("package.tools.autoconf").install(package, configs)
+        if is_plat("android") then
+            import("core.base.option")
+            import("core.tool.toolchain")
+            local ndk = toolchain.load("ndk", {plat = package:plat(), arch = package:arch()})
+            local cxflags =  ndk:get("cxflags")
+            local cflags = table.join(table.wrap(cxflags), ndk:get("cflags"))
+            local cxxflags = table.join(table.wrap(cxflags), ndk:get("cxxflags"))
+            local sysincludedirs = ndk:get("sysincludedirs")
+
+            for _, includedir in ipairs(sysincludedirs) do
+                table.insert(cflags, "-I" .. includedir)
+                table.insert(cxxflags, "-I" .. includedir)
+            end
+
+            local cc = package:tool("cc")
+            local cxx = package:tool("cxx")
+            local cpp = package:tool("cpp")
+            local as = package:tool("as")
+            local ar = package:tool("ar")
+
+            import("package.tools.autoconf").install(package, configs, {
+                envs = {
+                    CC = cc, CXX = cxx, CPP = cpp,
+                    AR = ar, AS = as,
+                    CFLAGS = table.concat(cflags, ' '),
+                    CXXFLAGS = table.concat(cxxflags, ' '),
+                }
+            })
+        else
+            import("package.tools.autoconf").install(package, configs)
+        end
     end)
 
     on_test(function (package)
