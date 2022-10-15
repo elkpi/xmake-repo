@@ -1,7 +1,11 @@
-diff -auNr a/CMakeLists.txt b/CMakeLists.txt
---- a/CMakeLists.txt	2022-10-01 21:52:10.599994467 +0800
-+++ b/CMakeLists.txt	2022-10-01 21:51:54.447903071 +0800
-@@ -319,7 +319,7 @@
+ CMakeLists.txt | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 276207e..d4334b7 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -319,7 +319,7 @@ if("${CMAKE_OS_NAME}" STREQUAL "Debian")
  		execute_process(COMMAND ${GZIP_CMD} -f -9 -n changelog.Debian)
  
  		# Install changelog
@@ -10,7 +14,7 @@ diff -auNr a/CMakeLists.txt b/CMakeLists.txt
  
  		# Delete changelog related variables
  		unset(CHANGELOG_HEADER)
-@@ -577,7 +577,6 @@
+@@ -577,7 +577,6 @@ if (NOT KS_PLAT_WIN)
  	install(FILES cmake/FindConfig.cmake COMPONENT "runtime" DESTINATION include/libks/cmake)
  	install(FILES cmake/FindConfigCpp.cmake COMPONENT "runtime" DESTINATION include/libks/cmake)
  	install(FILES cmake/AddLibBacktrace.cmake COMPONENT "runtime" DESTINATION include/libks/cmake)
@@ -18,3 +22,18 @@ diff -auNr a/CMakeLists.txt b/CMakeLists.txt
  	install(EXPORT LibKSConfig COMPONENT "runtime" DESTINATION include/libks/cmake)
  
  	# Set uninstall target
+@@ -608,11 +607,10 @@ endif()
+ 
+ #cotire(ks)
+ 
+-# Add tests
+-enable_testing()
+-add_subdirectory(tests)
+-
+ if (WITH_KS_TEST)
++	# Add tests
++	enable_testing()
++	add_subdirectory(tests)
+ 	enable_testing()
+ 	add_subdirectory(KSTest)
+ endif()

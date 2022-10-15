@@ -4,7 +4,7 @@ package("libks")
 
     add_urls("https://github.com/signalwire/libks.git")
     add_versions("v1.8.0", "bccc2f394855500c8f6f488b441d6fb94343491b")
-    add_patches("v1.8.0", path.join(os.scriptdir(), "patches", "v1.8.0", "cmake.patch"), "cff709c74e77c1a57694f856c327cc5b93896ea8e53c318d087b2a6f2c88a674")
+    add_patches("v1.8.0", path.join(os.scriptdir(), "patches", "v1.8.0", "cmake.patch"), "8a7021401aa25af82623a455331ee48de6b90bb2fad6611fb7ee17a51a593e20")
 
     add_deps("cmake")
     add_deps("libuuid", "openssl")
@@ -25,6 +25,23 @@ package("libks")
         table.insert(configs, "-DCMAKE_C_FLAGS=" .. table.concat(cflags, " "))
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
         table.insert(configs, "-DKS_STATIC=" .. (package:config("shared") and "OFF" or "ON"))
+        if is_plat("android") then
+            table.insert(configs, "-DWITH_KS_TEST=OFF")
+            local openssl = package:dep("openssl"):fetch()
+            if openssl then
+                for _, includedir in ipairs(openssl.includedirs or openssl.sysincludedirs) do
+                    table.insert(configs, "-DOPENSSL_INCLUDE_DIR=" .. includedir)
+                    break
+                end
+                for _, libfile in ipairs(openssl.libfiles) do
+                    if string.find(libfile, "libssl") then
+                        table.insert(configs, "-DOPENSSL_SSL_LIBRARY=" .. libfile)
+                    elseif  string.find(libfile, "libcrypto") then
+                        table.insert(configs, "-DOPENSSL_CRYPTO_LIBRARY=" .. libfile)
+                    end
+                end
+            end
+        end
         import("package.tools.cmake").install(package, configs)
     end)
 
