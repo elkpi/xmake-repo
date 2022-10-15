@@ -31,7 +31,7 @@ package("libtiff")
         end
     end)
 
-    on_install("windows", "mingw", "macosx", "linux", "bsd", function (package)
+    on_install("windows", "mingw", "macosx", "linux", "bsd", "android", function (package)
         local configs = {"-Dlzma=OFF", "-Djbig=OFF", "-Dpixarlog=OFF", "-Dlerc=OFF"}
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
