@@ -11,9 +11,13 @@ package("libpng")
     add_versions("v1.6.35", "3d22d46c566b1761a0e15ea397589b3a5f36ac09b7c785382e6470156c04247f")
     add_versions("v1.6.34", "7ffa5eb8f9f3ed23cf107042e5fec28699718916668bbce48b968600475208d3")
 
-    add_deps("zlib")
+    if is_plat("android") then
+        add_syslinks("z")
+    else
+        add_deps("zlib")
+    end
 
-    if is_plat("linux") then
+    if is_plat("linux", "android") then
         add_syslinks("m")
     end
 
@@ -25,7 +29,7 @@ package("libpng")
         add_extsources("brew::libpng")
     end
 
-    on_install("windows", "mingw", "android", "iphoneos", "cross", "bsd", function (package)
+    on_install("windows", "mingw", "iphoneos", "cross", "bsd", function (package)
         io.writefile("xmake.lua", [[
             add_rules("mode.debug", "mode.release")
             add_requires("zlib")
@@ -58,15 +62,15 @@ package("libpng")
         elseif not package:is_plat("windows", "mingw") and package:config("pic") ~= false then
             configs.cxflags = "-fPIC"
         end
-        if package:is_plat("android") and package:is_arch("armeabi-v7a") then
-            io.replace("arm/filter_neon.S", ".func", ".hidden", {plain = true})
-            io.replace("arm/filter_neon.S", ".endfunc", "", {plain = true})
-        end
+        -- if package:is_plat("android") and package:is_arch("armeabi-v7a") then
+        --     io.replace("arm/filter_neon.S", ".func", ".hidden", {plain = true})
+        --     io.replace("arm/filter_neon.S", ".endfunc", "", {plain = true})
+        -- end
         os.cp("scripts/pnglibconf.h.prebuilt", "pnglibconf.h")
         import("package.tools.xmake").install(package, configs)
     end)
 
-    on_install("macosx", "linux", function (package)
+    on_install("macosx", "linux", "android", function (package)
         local configs = {}
         table.insert(configs, "--enable-shared=" .. (package:config("shared") and "yes" or "no"))
         table.insert(configs, "--enable-static=" .. (package:config("shared") and "no" or "yes"))
@@ -86,7 +90,40 @@ package("libpng")
                 end
             end
         end
-        import("package.tools.autoconf").install(package, configs, {cppflags = cppflags, ldflags = ldflags})
+        if package:is_plat("android") then
+            import("core.tool.toolchain")
+            local ndk = toolchain.load("ndk", {plat = package:plat(), arch = package:arch()})
+            local sysincludedirs = ndk:get("sysincludedirs")
+            local cxflags = ndk:get("cxflags")
+            local cflags = table.join(table.wrap(cxflags), ndk:get("cflags"))
+            local cxxflags = table.join(table.wrap(cxflags), ndk:get("cxxflags"))
+            local cc = package:tool("cc")
+            local cxx = package:tool("cxx")
+            local cpp = package:tool("cpp")
+            local as = package:tool("as")
+            local ar = package:tool("ar")
+
+            for _, includedir in ipairs(sysincludedirs) do
+                table.insert(cflags, "-I" .. includedir)
+                table.insert(cxxflags, "-I" .. includedir)
+            end
+
+            cppflags = table.join(table.wrap(cppflags), table.wrap(cflags))
+
+            table.insert(configs, "--enable-arm-neon=on")
+
+            import("package.tools.autoconf").install(package, configs, {
+                envs = {
+                    CC = cc, CXX = cxx, CPP = cpp,
+                    AR = ar, AS = as,
+                    CFLAGS = table.concat(cflags, ' '),
+                    CXXFLAGS = table.concat(cxxflags, ' '),
+                    CPPFLAGS = table.concat(cppflags, ' '),
+                },
+            })
+        else
+            import("package.tools.autoconf").install(package, configs, {cppflags = cppflags, ldflags = ldflags})
+        end
     end)
 
     on_test(function (package)
