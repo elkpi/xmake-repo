@@ -60,7 +60,7 @@ package("libcurl")
                 has_deps = true
             end
         end
-        if has_deps and package:is_plat("linux", "macosx") then
+        if has_deps and package:is_plat("linux", "macosx", "android") then
             package:add("deps", "pkg-config")
         end
     end)
@@ -93,7 +93,7 @@ package("libcurl")
         import("package.tools.cmake").install(package, configs)
     end)
 
-    on_install("macosx", "linux", "iphoneos", "cross", function (package)
+    on_install("macosx", "linux", "iphoneos", "cross", "android", function (package)
         local configs = {"--disable-silent-rules",
                          "--disable-dependency-tracking",
                          "--without-hyper",
