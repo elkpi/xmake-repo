@@ -55,36 +55,12 @@ package("pcre")
         if package:debug() then
             table.insert(configs, "--enable-debug")
         end
+        local buildenvs = import("package.tools.autoconf").buildenvs(package)
         if is_plat("android") then
-            import("core.tool.toolchain")
-            local ndk = toolchain.load("ndk", {plat = package:plat(), arch = package:arch()})
-            local cxflags =  ndk:get("cxflags")
-            local cflags = table.join(table.wrap(cxflags), ndk:get("cflags"))
-            local cxxflags = table.join(table.wrap(cxflags), ndk:get("cxxflags"))
-            local sysincludedirs = ndk:get("sysincludedirs")
-
-            for _, includedir in ipairs(sysincludedirs) do
-                table.insert(cflags, "-I" .. includedir)
-                table.insert(cxxflags, "-I" .. includedir)
-            end
-
-            local cc = package:tool("cc")
-            local cxx = package:tool("cxx")
-            local cpp = package:tool("cpp")
-            local as = package:tool("as")
-            local ar = package:tool("ar")
-
-            import("package.tools.autoconf").install(package, configs, {
-                envs = {
-                    CC = cc, CXX = cxx, CPP = cpp,
-                    AR = ar, AS = as,
-                    CFLAGS = table.concat(cflags, ' '),
-                    CXXFLAGS = table.concat(cxxflags, ' '),
-                }
-            })
-        else
-            import("package.tools.autoconf").install(package, configs)
+            buildenvs.CXX = package:tool("cxx")
+            buildenvs.ARFLAGS = nil
         end
+        import("package.tools.autoconf").install(package, configs, {envs = buildenvs})
     end)
 
     on_test(function (package)
