@@ -1,0 +1,55 @@
+diff -uNr a/source/CMakeLists.txt b/source/CMakeLists.txt
+--- a/source/CMakeLists.txt	2020-05-30 01:39:35.000000000 +0800
++++ b/source/CMakeLists.txt	2022-10-16 22:55:59.478676382 +0800
+@@ -85,7 +85,35 @@
+ endif()
+ 
+ if(UNIX)
+-    list(APPEND PLATFORM_LIBS pthread)
++    if(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
++        message(STATUS "Detected Android system")
++        if(ANDROID_NATIVE_API_LEVEL LESS "24")
++            message(FATAL_ERROR "Android API must >= 24")
++        endif()
++        add_definitions(-pthread)
++        if (ANDROID_ABI MATCHES "arm64-v8a")
++            message(STATUS "Detected Android ARM64 target processor")
++        elseif(ANDROID_ABI MATCHES "armeabi-v7a")
++            message(STATUS "Detected Android ARM target processor")
++        elseif(ANDROID_ABI MATCHES "x86_64" OR ANDROID_ABI MATCHES "x86")
++            add_definitions(-DX265_ARCH_X86=1)
++            if(ANDROID_ABI MATCHES "x86_64")
++                add_definitions(-DX86_64=1)
++                message(STATUS "Detected Android x86_64 target processor")
++            else()
++                message(STATUS "Detected Android x86 target processor")
++            endif()
++        else()
++            message(FATAL_ERROR "
++                Please specify ANDROID_ABI
++                For example
++                cmake ... -DANDROID_ABI=armeabi-v7a
++                Possible ABIs are: arm64-v8a, armeabi-v7a, x64-android, x86-android
++            ")
++        endif()
++    else()
++        list(APPEND PLATFORM_LIBS pthread)
++    endif()
+     find_library(LIBRT rt)
+     if(LIBRT)
+         list(APPEND PLATFORM_LIBS rt)
+@@ -238,6 +266,14 @@
+             endif()
+         endif()
+     endif()
++    if(NEON_ANDROID)
++        if("${CMAKE_ANDROID_ARCH_ABI}" STREQUAL "armeabi-v7a")
++            set(ARM_ARGS -mfloat-abi=softfp -mfpu=neon -marm -fPIC)
++            add_definitions(-DHAVE_NEON)
++        elseif("${CMAKE_ANDROID_ARCH_ABI}" STREQUAL "arm64-v8a")
++            add_definitions(-DHAVE_NEON)
++        endif()
++    endif()
+     if(ARM AND CROSS_COMPILE_ARM)
+         if(ARM64)
+             set(ARM_ARGS -fPIC)
