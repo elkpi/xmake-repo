@@ -91,36 +91,21 @@ package("libpng")
             end
         end
         if package:is_plat("android") then
+            local buildenvs = import("package.tools.autoconf").buildenvs(package)
             import("core.tool.toolchain")
             local ndk = toolchain.load("ndk", {plat = package:plat(), arch = package:arch()})
-            local sysincludedirs = ndk:get("sysincludedirs")
-            local cxflags = ndk:get("cxflags")
-            local cflags = table.join(table.wrap(cxflags), ndk:get("cflags"))
-            local cxxflags = table.join(table.wrap(cxflags), ndk:get("cxxflags"))
-            local cc = package:tool("cc")
-            local cxx = package:tool("cxx")
-            local cpp = package:tool("cpp")
-            local as = package:tool("as")
-            local ar = package:tool("ar")
 
-            for _, includedir in ipairs(sysincludedirs) do
-                table.insert(cflags, "-I" .. includedir)
-                table.insert(cxxflags, "-I" .. includedir)
+            for _, f in ipairs(ndk:get("cflags")) do
+                buildenvs.CFLAGS = buildenvs.CFLAGS .. " " .. f
             end
-
-            cppflags = table.join(table.wrap(cppflags), table.wrap(cflags))
+            for _, f in ipairs(ndk:get("cxxflags")) do
+                buildenvs.CXXFLAGS = buildenvs.CXXFLAGS .. " " .. f
+            end
+            buildenvs.CPPFLAGS = buildenvs.CXXFLAGS
 
             table.insert(configs, "--enable-arm-neon=on")
 
-            import("package.tools.autoconf").install(package, configs, {
-                envs = {
-                    CC = cc, CXX = cxx, CPP = cpp,
-                    AR = ar, AS = as,
-                    CFLAGS = table.concat(cflags, ' '),
-                    CXXFLAGS = table.concat(cxxflags, ' '),
-                    CPPFLAGS = table.concat(cppflags, ' '),
-                },
-            })
+            import("package.tools.autoconf").install(package, configs, {envs = buildenvs})
         else
             import("package.tools.autoconf").install(package, configs, {cppflags = cppflags, ldflags = ldflags})
         end
