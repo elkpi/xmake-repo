@@ -28,6 +28,9 @@ package("ffmpeg")
         add_versions("git:5.0.1", "n5.0.1")
         add_versions("git:4.0.2", "n4.0.2")
         add_versions("git:3.2.18", "n3.2.18")
+
+        -- https://patchwork.ffmpeg.org/project/ffmpeg/patch/20180330191423.3420-1-martin@martin.st/
+        add_patches("3.2.18", path.join(os.scriptdir(), "patches", "3.2.18", "arm_swscale_rgb2yuv_asm.patch"), "9d9186c7903f96d916c6db4adda655d4dbc92e512b31ceac39752bc7c78db063")
     
         add_configs("gpl",              {description = "Enable GPL code", default = true, type = "boolean"})
         add_configs("ffprobe",          {description = "Enable ffprobe program.", default = false, type = "boolean"})
@@ -187,6 +190,7 @@ package("ffmpeg")
             table.insert(configs, "--cpu=" .. cpu)
             table.insert(configs, "--cc=" .. path.join(bin, triple .. ndk_sdkver .. "-clang"))
             table.insert(configs, "--cxx=" .. path.join(bin, triple .. ndk_sdkver .. "-clang++"))
+            table.insert(configs, "--strip=" .. path.join(bin, "llvm-strip"))
             table.insert(configs, "--extra-cflags=" .. table.concat(cflags, ' '))
             table.insert(configs, "--extra-cxxflags=" .. table.concat(cxxflags, ' '))
             table.insert(configs, "--sysroot=" .. sysroot)
