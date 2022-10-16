@@ -131,15 +131,23 @@ package("openssl")
         end
 
         local target = target_plat .. "-" .. target_arch
-        local configs = {target,
+        local configs = {"./Configure",
+                         target,
                          "-DOPENSSL_NO_HEARTBEATS",
                          "no-shared",
                          "no-threads",
                          "--openssldir=" .. package:installdir(),
                          "--prefix=" .. package:installdir()}
         local buildenvs = import("package.tools.autoconf").buildenvs(package)
-        os.vrunv("./Configure", configs, {envs = buildenvs})
-        local makeconfigs = {CFLAGS = buildenvs.CFLAGS, ASFLAGS = buildenvs.ASFLAGS}
+        if package:version_str() == "1.0.2u" then
+            table.insert(configs, "no-zlib")
+            table.insert(configs, "/::" .. buildenvs.CFLAGS)
+        end
+        os.vrunv("perl", configs, {envs = buildenvs})
+        local makeconfigs = {}
+        if package:version_str() ~= "1.0.2u" then
+            makeconfigs = {CFLAGS = buildenvs.CFLAGS, ASFLAGS = buildenvs.ASFLAGS}
+        end
         import("package.tools.make").build(package, makeconfigs)
         import("package.tools.make").make(package, {"install_sw"})
     end)
