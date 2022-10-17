@@ -11,15 +11,18 @@ package("libverto")
     for _, cdep in ipairs(cdeps) do
         add_configs(cdep, {description = "Enable " .. cdep .. " support.", default = false, type = "boolean"})
     end
-    on_load("macosx", "linux", function (package)
+    on_load("macosx", "linux", "android", function (package)
         for _, cdep in ipairs(cdeps) do
             if package:config(cdep) then
                 package:add("deps", cdep)
             end
         end
+        if is_plat("linux") then
+            package:add("syslinks", "dl")
+        end
     end)
 
-    on_install("macosx", "linux", function (package)
+    on_install("macosx", "linux", "android", function (package)
         local configs = {"--disable-dependency-tracking"}
         table.insert(configs, "--enable-shared=" .. (package:config("shared") and "yes" or "no"))
         table.insert(configs, "--enable-static=" .. (package:config("shared") and "no" or "yes"))
@@ -29,7 +32,8 @@ package("libverto")
         if package:config("pic") ~= false then
             table.insert(configs, "--with-pic")
         end
-        import("package.tools.autoconf").install(package)
+        local buildenvs = import("package.tools.autoconf").buildenvs(package)
+        import("package.tools.autoconf").install(package, configs, {ldflags = buildenvs.LDFLAGS})
     end)
 
     on_test(function (package)
