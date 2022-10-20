@@ -134,10 +134,10 @@ package("openssl")
         local configs = {"./Configure",
                          target,
                          "-DOPENSSL_NO_HEARTBEATS",
-                         "no-shared",
                          "no-threads",
                          "--openssldir=" .. package:installdir(),
                          "--prefix=" .. package:installdir()}
+        table.insert(configs, package:config("shared") and "shared" or "no-shared")
         local buildenvs = import("package.tools.autoconf").buildenvs(package)
         if package:version_str() == "1.0.2u" then
             table.insert(configs, "no-zlib")
