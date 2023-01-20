@@ -5,6 +5,7 @@ package("commonlibsse-ng")
 
     add_urls("https://github.com/CharmedBaryon/CommonLibSSE-NG/archive/$(version).zip",
              "https://github.com/CharmedBaryon/CommonLibSSE-NG.git")
+    add_versions("v3.6.0", "6f84c36f5747cff73d6a95bc7b9de84b11601648b218fd3e69edc884cc94a5a8")
     add_versions("v3.5.6", "a3e1d4ec7496adca8310613fe75a2e08a9dbf562a9febec584b4e79aacc92bd3")
     add_versions("v3.5.5", "5b00de66b9b8bc300244f14f1a281f26961931ba28ed0f4c9cce3a30a77c784a")
 
@@ -45,4 +46,14 @@ package("commonlibsse-ng")
         configs.skse_xbyak = package:config("skse_xbyak")
 
         import("package.tools.xmake").install(package, configs)
+    end)
+
+    on_test("windows|x64", function(package)
+        assert(package:check_cxxsnippets({test = [[
+            #include <SKSE/SKSE.h>
+
+            SKSEPluginLoad(const SKSE::LoadInterface*) {
+                return true;
+            };
+        ]]}, { configs = { languages = "c++20" } }))
     end)

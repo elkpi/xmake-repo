@@ -26,6 +26,34 @@ package("openh264")
         end
     end)
 
+    on_install("android", function (package)
+        local buildenvs = import("package.tools.autoconf").buildenvs(package)
+        import("core.tool.toolchain")
+        local ndk = toolchain.load("ndk", {plat = package:plat(), arch = package:arch()})
+        local configs = {
+            OS = "android",
+            NDKROOT = ndk:config("ndk"),
+            TARGET = "android-" .. ndk:config("ndk_sdkver"),
+            NDK_TOOLCHAIN_VERSION = "clang",
+            APP_STL = "c++_shared",
+        }
+        local target_arch = "arm"
+        if package:is_arch("x86_64") then
+            target_arch = "x86_64"
+        elseif package:is_arch("x86") then
+            target_arch = "x86"
+        elseif package:is_arch("arm64-v8a") then
+            target_arch = "arm64"
+        end
+        configs.ARCH = target_arch
+        buildenvs.NDK_TOOLCHAIN_VERSION = "clang"
+        buildenvs.APP_STL = configs.APP_STL
+        print(configs)
+        print(buildenvs)
+        -- print("ndk_cxxstl: " ..ndk:config("ndk_cxxstl"))
+        import("package.tools.make").build(package, configs, {envs = buildenvs})
+    end)
+
     on_test(function (package)
         assert(package:has_cxxfuncs("WelsGetCodecVersion", {includes = "wels/codec_api.h"}))
     end)

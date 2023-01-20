@@ -13,16 +13,43 @@ package("krb5")
 
     add_deps("bison", "libverto")
     add_links("k5crypto", "kdb5", "krad", "gssapi_krb5", "krb5support", "krb5", "gssrpc", "verto", "com_err")
-    on_load("macosx", "linux", function (package)
+    on_load("macosx", "linux", "android", function (package)
         if package:config("tls") then
             package:add("deps", "openssl")
         end
     end)
 
-    on_install("macosx", "linux", function (package)
+    on_install("macosx", "linux", "android", function (package)
         os.cd("src")
         local configs = {"--disable-dependency-tracking", "--with-system-verto"}
         table.insert(configs, "--with-tls-impl=" .. (package:config("tls") and "openssl" or "no"))
+
+        local cflags = {}
+        if is_plat("android") then
+            local cross_configs = {
+                "--without-libedit",
+                "--without-readline",
+                "--disable-rpath",
+                "--disable-pkinit",
+                "--disable-dns-for-realm",
+                "--with-size-optimizations",
+                "cross_compiling=yes",
+                "krb5_cv_attr_constructor_destructor=yes,yes",
+                "krb5_cv_sys_rcdir=/tmp",
+                "ac_cv_func_regcomp=yes",
+                "ac_cv_printf_positional=yes",
+                "ac_cv_file__etc_environment=no",
+                "ac_cv_file__etc_TIMEZONE=no",
+                "ac_cv_header_keyutils_h=no",
+                "krb5_cv_cc_flag__Werror_implicit_function_declaration=no",
+            }
+
+            for _, c in ipairs(cross_configs) do
+                table.insert(configs, c)    
+            end
+            table.insert(cflags, "-Wno-error=implicit-function-declaration")
+        end
+
         local cppflags = {}
         local ldflags = {}
         for _, dep in ipairs(package:orderdeps()) do
@@ -36,7 +63,7 @@ package("krb5")
                 end
             end
         end
-        import("package.tools.autoconf").install(package, configs, {cppflags = cppflags, ldflags = ldflags})
+        import("package.tools.autoconf").install(package, configs, {cflags = cflags, cppflags = cppflags, ldflags = ldflags})
     end)
 
     on_test(function (package)

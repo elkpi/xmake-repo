@@ -9,12 +9,17 @@ package("libpq")
     add_versions("14.1", "14809c9f669851ab89b344a50219e85b77f3e93d9df9e255b9781d8d60fcfbc9")
     add_versions("13.8", "12e37368e8f56efe4155a0152d8ed10bde898426d4a519bf0a83bbb2e4efd235")
 
-    add_deps("krb5", "openssl", "zlib")
+    add_deps("krb5", "openssl")
     if is_plat("linux") then
         add_deps("flex", "bison")
     end
+    if is_plat("android") then
+        -- add_deps("zlib", {configs = {shared = true}})
+    else
+        add_deps("zlib")
+    end
 
-    on_install("macosx", "linux", function (package)
+    on_install("macosx", "linux", "android", function (package)
         local configs = {"--with-openssl", "--without-readline"}
         table.insert(configs, "--enable-shared=" .. (package:config("shared") and "yes" or "no"))
         table.insert(configs, "--enable-static=" .. (package:config("shared") and "no" or "yes"))

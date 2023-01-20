@@ -47,7 +47,7 @@ package("mariadb-connector-c")
         end
     end)
 
-    on_install("bsd", "linux", "windows", function(package)
+    on_install("bsd", "linux", "windows", "android", function(package)
         local configs = {}
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
         for name, enabled in pairs(package:configs()) do
