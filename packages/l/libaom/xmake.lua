@@ -3,8 +3,9 @@ package("libaom")
     set_description("AV1 Codec Library")
 
     add_urls("https://github.com/elkpi/aom/archive/refs/tags/$(version).tar.gz",
-            "https://github.com/elkpi/aom.git")
-    -- add_versions("2022.01.12", "402e264b94fd74bdf66837da216b6251805b4ae4")
+            "https://github.com/elkpi/aom.git",
+            "https://aomedia.googlesource.com/aom.git")
+
     add_versions("v3.6.0", "2ba213822cb1528b5558d6727125654e14d1b2d7505bd1fc8afa36c2e9e9f94a")
 
     add_deps("cmake")
