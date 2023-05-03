@@ -17,5 +17,5 @@ package("rnnoise")
     end)
 
     on_test(function (package)
-        assert(package:has_cfuncs("foo", {includes = "foo.h"}))
+        assert(package:has_cfuncs("rnnoise_init", {includes = "rnnoise.h"}))
     end)
