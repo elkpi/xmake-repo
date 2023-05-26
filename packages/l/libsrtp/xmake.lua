@@ -8,6 +8,7 @@ package("libsrtp")
     add_versions("v1.6.0", "1a3e7904354d55e45b3c5c024ec0eab1b8fa76fdbf4dd2ea2625dad2b3c6edde")
 
     add_configs("openssl", {description = "Enable openssl.", default = true, type = "boolean"})
+    add_configs("webrtc_dep_hdrs", {description = "Enable webrtc depend headers.", default = false, type = "boolean"})
 
     on_load(function (package)
         if package:config("openssl") then
@@ -31,6 +32,12 @@ package("libsrtp")
             table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
             table.insert(configs, "-DENABLE_OPENSSL=" .. (enable_openssl and "ON" or "OFF"))
             import("package.tools.cmake").install(package, configs)
+
+            if package:config("webrtc_dep_hdrs") then
+                os.cp(path.join("include", "srtp_priv.h"),  path.join(package:installdir("include"), "srtp2"))
+                os.cp(path.join(package:buildir(), "config.h"),  path.join(package:installdir("include"), "srtp2"))
+                os.cp(path.join("crypto", "include", "*"),  path.join(package:installdir("include"), "srtp2"))
+            end
         else
             if package:config("openssl") then
                 local openssl = package:dep("openssl"):fetch()
