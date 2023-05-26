@@ -18,15 +18,7 @@ package("x265")
         add_syslinks("pthread", "dl")
     end
 
-    on_install("linux", "macosx", function (package)
-        os.cd("build/linux")
-        os.vrunv("./multilib.sh", {}, {envs = { MAKEFLAGS="-j 6" }})
-        import("package.tools.make").make(package, {"-C", "8bit", "install", "DESTDIR=./" })
-        os.vrun("sed -i 's#^prefix=.*#prefix=" .. package:installdir() .. "#g' 8bit/usr/local/lib/pkgconfig/x265.pc")
-        os.cp("8bit/usr/local/*", package:installdir())
-    end)
-
-    on_install("android", "cross", function (package)
+    on_install("linux", "macosx", "android", "cross", function (package)
         local configs = {
             "../source",
         }
@@ -42,7 +34,7 @@ package("x265")
             end
         end
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
-        table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
+        table.insert(configs, "-DENABLE_SHARED=" .. (package:config("shared") and "ON" or "OFF"))
         import("package.tools.cmake").install(package, configs)
     end)
 
