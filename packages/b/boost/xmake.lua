@@ -37,6 +37,7 @@ package("boost")
         add_syslinks("pthread", "dl")
     end
 
+    add_configs("pyver", {description = "python version x.y, etc. 3.10", default = "3.10"})
     local libnames = {"fiber",
                       "coroutine",
                       "context",
@@ -84,8 +85,7 @@ package("boost")
                 linkname = "boost_" .. libname
             end
             if libname == "python" then
-                -- TODO maybe we need improve it, e.g. libboost_python310-mt.a
-                linkname = linkname .. "310"
+                linkname = linkname .. package:config("pyver"):gsub("%p+", "")
             end
             if package:config("multi") then
                 linkname = linkname .. "-mt"
@@ -107,7 +107,8 @@ package("boost")
             return linkname
         end
         -- we need the fixed link order
-        local sublibs = {log = {"log_setup", "log"}}
+        local sublibs = {log = {"log_setup", "log"},
+                         stacktrace = {"stacktrace_backtrace", "stacktrace_basic"}}
         for _, libname in ipairs(libnames) do
             local libs = sublibs[libname]
             if libs then
@@ -122,12 +123,17 @@ package("boost")
         if package:is_plat("windows") then
             package:add("defines", "BOOST_ALL_NO_LIB")
         end
+
         if package:config("python") then
-            package:add("deps", "python 3.10.x")
+            if not package:config("shared") then
+                package:add("defines", "BOOST_PYTHON_STATIC_LIB")
+            end
+            package:add("deps", "python " .. package:config("pyver") .. ".x", {configs = {headeronly = true}})
         end
     end)
 
     on_install("macosx", "linux", "windows", "bsd", "mingw", "cross", function (package)
+        import("core.base.option")
 
         -- force boost to compile with the desired compiler
         local file = io.open("user-config.jam", "a")
@@ -170,12 +176,13 @@ package("boost")
         end
         os.vrun("./b2 headers")
 
+        local njobs = option.get("jobs") or tostring(os.default_njob())
         local argv =
         {
             "--prefix=" .. package:installdir(),
             "--libdir=" .. package:installdir("lib"),
             "-d2",
-            "-j4",
+            "-j" .. njobs,
             "--hash",
             "--layout=tagged-1.66", -- prevent -x64 suffix in case cmake can't find it
             "--user-config=user-config.jam",
@@ -189,6 +196,9 @@ package("boost")
 
         if package:config("lto") then
             table.insert(argv, "lto=on")
+        end
+        if package:is_arch("aarch64", "arm+.*") then
+            table.insert(argv, "architecture=arm")
         end
         if package:is_arch(".+64.*") then
             table.insert(argv, "address-model=64")
