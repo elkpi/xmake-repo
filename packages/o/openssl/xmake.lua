@@ -108,12 +108,12 @@ package("openssl")
         if package:debug() then
             table.insert(configs, "--debug")
         end
-        if package:version_str() == "1.0.2u" then
+        if package:version_str() == "1.0.2-u" then
             table.insert(configs, "-fPIC")
         end
         os.vrunv("./config", configs, {envs = buildenvs})
         local makeconfigs = {}
-        if package:version_str() ~= "1.0.2u" then
+        if package:version_str() ~= "1.0.2-u" then
             makeconfigs = {CFLAGS = buildenvs.CFLAGS, ASFLAGS = buildenvs.ASFLAGS}
         end
         import("package.tools.make").build(package, makeconfigs)
@@ -153,13 +153,13 @@ package("openssl")
                          "--prefix=" .. package:installdir()}
         table.insert(configs, package:config("shared") and "shared" or "no-shared")
         local buildenvs = import("package.tools.autoconf").buildenvs(package)
-        if package:version_str() == "1.0.2u" then
+        if package:version_str() == "1.0.2-u" then
             table.insert(configs, "no-zlib")
             table.insert(configs, "/::" .. buildenvs.CFLAGS)
         end
         os.vrunv("perl", configs, {envs = buildenvs})
         local makeconfigs = {}
-        if package:version_str() ~= "1.0.2u" then
+        if package:version_str() ~= "1.0.2-u" then
             makeconfigs = {CFLAGS = buildenvs.CFLAGS, ASFLAGS = buildenvs.ASFLAGS}
         end
         import("package.tools.make").build(package, makeconfigs)
