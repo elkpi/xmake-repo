@@ -46,7 +46,13 @@ package("x264")
     on_install("linux", "macosx", "wasm", "android", function (package)
         local configs = {}
 
-        table.insert(configs, "--enable-" .. (package:config("shared") and "shared" or "static"))
+        if package:config("shared") then
+            table.insert(configs, "--enable-shared")
+            table.insert(configs, "--disable-static")
+        else
+            table.insert(configs, "--enable-static")
+            table.insert(configs, "--disable-shared")
+        end
         if package:is_plat("wasm") then
             table.insert(configs, "--host=i686-gnu")
             package:config_set("asm", false)
