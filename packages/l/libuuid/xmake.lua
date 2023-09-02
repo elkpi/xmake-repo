@@ -10,7 +10,8 @@ package("libuuid")
     add_versions("1.0.3", "46af3275291091009ad7f1b899de3d0cea0252737550e7919d17237997db5644")
 
     on_install("linux", "macosx", "bsd", "android", "iphoneos", "wasm", "cross", function(package)
-        io.writefile("xmake.lua", [[
+        io.writefile("xmake.lua", ([[
+            set_version("%s")
             includes("check_cfuncs.lua")
             add_rules("mode.debug", "mode.release")
             target("uuid")
@@ -25,7 +26,7 @@ package("libuuid")
                 check_cfuncs("HAVE_SOCKET", "socket", {includes = "sys/socket.h"})
                 check_cfuncs("HAVE_STRTOUL", "strtoul", {includes = "stdlib.h"})
                 check_cfuncs("HAVE_SRANDOM", "srandom", {includes = "stdlib.h"})
-        ]])
+        ]]):format(package:version_str()))
         local configs = {}
         if package:config("shared") then
             configs.kind = "shared"
