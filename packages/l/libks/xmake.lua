@@ -18,7 +18,6 @@ package("libks")
 
         local configs = {}
         local cflags = {}
-        local PKG_CONFIG_PATH = {}
         
         for _, dep in ipairs(package:orderdeps()) do
             local fetchinfo = dep:fetch()
@@ -29,8 +28,8 @@ package("libks")
             end
         end
 
-        local envs = cmake.buildenvs(package)
-
+   --[[      local envs = cmake.buildenvs(package)
+        local PKG_CONFIG_PATH = {}
         local libuuid = package:dep("libuuid"):fetch()
         if libuuid then
             for _, dir in ipairs(libuuid.linkdirs) do
@@ -38,8 +37,7 @@ package("libks")
                 table.insert(PKG_CONFIG_PATH, path.join(dir, "share", "pkgconfig"))
             end
         end
-
-        envs.PKG_CONFIG_PATH = path.joinenv(table.join(PKG_CONFIG_PATH, envs.PKG_CONFIG_PATH))
+        envs.PKG_CONFIG_PATH = path.joinenv(table.join(PKG_CONFIG_PATH, envs.PKG_CONFIG_PATH)) ]]
 
         table.insert(configs, "-DCMAKE_C_FLAGS=" .. table.concat(cflags, " "))
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
