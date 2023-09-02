@@ -1,0 +1,36 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 01a4ff7..820ff03 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -319,7 +319,7 @@ if("${CMAKE_OS_NAME}" STREQUAL "Debian")
+ 		execute_process(COMMAND ${GZIP_CMD} -f -9 -n changelog.Debian)
+ 
+ 		# Install changelog
+-		install(FILES "${CMAKE_BINARY_DIR}/changelog.Debian.gz" COMPONENT "runtime" DESTINATION "share/doc/libks2")
++		# install(FILES "${CMAKE_BINARY_DIR}/changelog.Debian.gz" COMPONENT "runtime" DESTINATION "share/doc/libks2")
+ 
+ 		# Delete changelog related variables
+ 		unset(CHANGELOG_HEADER)
+@@ -575,7 +575,6 @@ if (NOT KS_PLAT_WIN)
+ 	install(FILES cmake/ksutil.cmake COMPONENT "runtime" DESTINATION include/libks2/libks/cmake)
+ 	install(FILES cmake/FindPCRE.cmake COMPONENT "runtime" DESTINATION include/libks2/libks/cmake)
+ 	install(FILES cmake/AddLibBacktrace.cmake COMPONENT "runtime" DESTINATION include/libks2/libks/cmake)
+-	install(FILES ${PROJECT_SOURCE_DIR}/copyright COMPONENT "runtime" DESTINATION share/doc/libks2)
+ 	install(EXPORT LibKS2Config COMPONENT "runtime" DESTINATION include/libks2/libks/cmake)
+ 
+ 	# Set uninstall target
+@@ -606,11 +605,10 @@ endif()
+ 
+ #cotire(ks)
+ 
+-# Add tests
+-enable_testing()
+-add_subdirectory(tests)
+-
+ if (WITH_KS_TEST)
++	# Add tests
++	enable_testing()
++	add_subdirectory(tests)
+ 	enable_testing()
+ 	add_subdirectory(KSTest)
+ endif()
