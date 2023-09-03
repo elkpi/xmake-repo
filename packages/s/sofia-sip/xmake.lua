@@ -33,7 +33,7 @@ package("sofia-sip")
         end
 
         local buildenvs = import("package.tools.autoconf").buildenvs(package)
-        print(buildenvs)
+
         if is_plat("android") then
             import("core.tool.toolchain")
             local ndk = toolchain.load("ndk", {plat = package:plat(), arch = package:arch()})
@@ -41,17 +41,6 @@ package("sofia-sip")
             local sysroot  = path.join(path.directory(bin), "sysroot")
             table.insert(configs, "--with-sysroot=" .. sysroot)
             buildenvs.LDFLAGS = buildenvs.LDFLAGS .. " -L" .. sysroot .. "/usr/lib/arm-linux-androideabi"
-
-            print("cflags: ")
-            print(ndk:get("cflags"))
-            print("cxxflags: ")
-            print(ndk:get("cxxflags"))
-            print("cppflags: ")
-            print(ndk:get("cppflags"))
-            print("ldflags: ")
-            print(ndk:get("ldflags"))
-            print("shflags: ")
-            print(ndk:get("shflags"))
 
             buildenvs.LDFLAGS = nil
             buildenvs.CPPFLAGS = buildenvs.CXXFLAGS
