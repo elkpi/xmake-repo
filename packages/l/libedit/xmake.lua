@@ -7,7 +7,7 @@ package("libedit")
     add_versions("20210910-3.1", "6792a6a992050762edcca28ff3318cdb7de37dccf7bc30db59fcd7017eed13c5")
 
     add_deps("autoconf", "automake", "libtool")
-    add_deps("ncurses")
+    add_deps("ncurses", "libbsd")
 
     on_install(function (package)
         local configs = {}
