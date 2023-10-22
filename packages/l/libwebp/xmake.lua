@@ -13,6 +13,7 @@ package("libwebp")
     add_versions("v1.2.3", "5e8452bcfe64badadbed5480ea9e86f156fe649f15e765e6059645f0aff73546")
     add_versions("v1.2.4", "dfe7bff3390cd4958da11e760b65318f0a48c32913e4d5bc5e8d55abaaa2d32e")
     add_versions("v1.3.0", "dc9860d3fe06013266c237959e1416b71c63b36f343aae1d65ea9c94832630e1")
+    add_versions("v1.3.2", "c2c2f521fa468e3c5949ab698c2da410f5dce1c5e99f5ad9e70e0e8446b86505")
 
     add_patches(">=1.1.0 <1.3.0", path.join(os.scriptdir(), "patches", "0001-fix-dll-export.patch"), "81d92d800dd7b57704a0e4db3b7155184fe8bb6bc0a925a699a8a0868629f60c")
 
