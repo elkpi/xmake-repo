@@ -12,8 +12,8 @@ package("sofia-sip")
 
     add_includedirs("include", "include/sofia-sip-1.13")
 
+    add_deps("autoconf", "automake", "libtool")
     add_deps("openssl")
-
     if is_plat("android") then
         add_syslinks("z")
         add_patches("v1.13.9", path.join(os.scriptdir(), "patches", "v1.13.9", "android-ndk-r25b-compile.patch"), "f1ddf591da1a6fa3583ca577f20dc40043e3e3768584c5b1160d0a396415343e")
