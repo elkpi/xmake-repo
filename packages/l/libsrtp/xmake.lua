@@ -16,8 +16,6 @@ package("libsrtp")
         end
         if package:version():ge("2.0") then
             package:add("deps", "cmake");
-        else
-            package:add("deps", "autoconf", "automake", "libtool");
         end
     end)
 
