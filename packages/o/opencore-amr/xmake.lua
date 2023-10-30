@@ -6,18 +6,12 @@ package("opencore-amr")
 
     add_versions("0.1.6", "483eb4061088e2b34b358e47540b5d495a96cd468e361050fae615b1809dc4a1")
 
-    add_deps("autoconf", "automake", "libtool")
-
     on_install(function (package)
         local configs = {}
         table.insert(configs, "--enable-shared=" .. (package:config("shared") and "yes" or "no"))
         if package:debug() then
             table.insert(configs, "--enable-debug")
         end
-        if package:is_plat("linux") and package:config("pic") ~= false then
-            table.insert(configs, "--with-pic")
-        end
-
         local buildenvs = import("package.tools.autoconf").buildenvs(package)
         buildenvs.CXX = package:tool("cxx")
         import("package.tools.autoconf").install(package, configs, {envs = buildenvs})
