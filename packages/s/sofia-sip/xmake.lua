@@ -28,9 +28,6 @@ package("sofia-sip")
         if package:debug() then
             table.insert(configs, "--enable-debug")
         end
-        if package:is_plat("linux") and package:config("pic") ~= false then
-            table.insert(configs, "--with-pic")
-        end
 
         local buildenvs = import("package.tools.autoconf").buildenvs(package)
 
