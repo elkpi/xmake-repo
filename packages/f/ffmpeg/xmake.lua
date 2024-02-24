@@ -66,32 +66,30 @@ package("ffmpeg")
         add_deps("yasm")
     end
 
-    if on_fetch then
-        on_fetch("mingw", "linux", "macosx", function (package, opt)
-            import("lib.detect.find_tool")
-            if opt.system then
-                local result
-                for _, name in ipairs({"libavcodec", "libavdevice", "libavfilter", "libavformat", "libavutil", "libpostproc", "libswresample", "libswscale"}) do
-                    local pkginfo = package:find_package("pkgconfig::" .. name, opt)
-                    if pkginfo then
-                        pkginfo.version = nil
-                        if not result then
-                            result = pkginfo
-                        else
-                            result = result .. pkginfo
-                        end
+    on_fetch("mingw", "linux", "macosx", function (package, opt)
+        import("lib.detect.find_tool")
+        if opt.system then
+            local result
+            for _, name in ipairs({"libavcodec", "libavdevice", "libavfilter", "libavformat", "libavutil", "libpostproc", "libswresample", "libswscale"}) do
+                local pkginfo = package:find_package("pkgconfig::" .. name, opt)
+                if pkginfo then
+                    pkginfo.version = nil
+                    if not result then
+                        result = pkginfo
                     else
-                        return
+                        result = result .. pkginfo
                     end
+                else
+                    return
                 end
-                local ffmpeg = find_tool("ffmpeg", {check = "-help", version = true, command = "-version", parse = "%d+%.?%d+%.?%d+", force = true})
-                if ffmpeg then
-                    result.version = ffmpeg.version
-                end
-                return result
             end
-        end)
-    end
+            local ffmpeg = find_tool("ffmpeg", {check = "-help", version = true, command = "-version", parse = "%d+%.?%d+%.?%d+", force = true})
+            if ffmpeg then
+                result.version = ffmpeg.version
+            end
+            return result
+        end
+    end)
 
     on_load("linux", "macosx", "android", function (package)
         local configdeps = {zlib    = "zlib",
@@ -113,6 +111,9 @@ package("ffmpeg")
         if not package:config("gpl") then
             package:set("license", "LGPL-3.0")
         end
+        if is_subhost("windows") and os.arch() == "x64" then
+            package:add("deps", "msys2", {configs = {msystem = "MINGW64", mingw64_gcc = true, base_devel = true}})
+        end
     end)
 
     on_install("windows|x64", "mingw|x86_64", function (package)
@@ -127,7 +128,7 @@ package("ffmpeg")
         package:addenv("PATH", "bin")
     end)
 
-    on_install("linux", "macosx", "android@linux,macosx", function (package)
+    on_install("linux", "macosx", "android", function (package)
         local configs = {"--enable-version3",
                          "--disable-doc"}
         if package:config("gpl") then
@@ -178,8 +179,24 @@ package("ffmpeg")
                 cpu = "armv7-a"
                 triple = "armv7a-linux-androideabi"
                 cross_prefix = path.join(bin, "arm-linux-androideabi-")
+            elseif package:is_arch("x86") then
+                arch = "x86_android"
+                cpu = "x86"
+                triple = "i686-linux-android"
+                cross_prefix = path.join(bin, "i686-linux-android-")
+             elseif package:is_arch("x86_64") then
+                arch = "x86_64_android"
+                cpu = "x86_64"
+                triple = "x86_64-linux-android"
+                cross_prefix = path.join(bin, "x86_64-linux-android-")
             else
                 raise("unknown arch(%s) for android!", package:arch())
+            end
+            local function _translate_path(p)
+                if p and is_host("windows") then
+                    return p:gsub("\\", "/")
+                end
+                return p
             end
             local sysroot  = path.join(path.directory(bin), "sysroot")
             local cflags   = table.join(table.wrap(package:config("cxflags")), table.wrap(package:config("cflags")), table.wrap(get_config("cxflags")), get_config("cflags"))
@@ -200,22 +217,30 @@ package("ffmpeg")
             table.insert(configs, "--disable-avdevice")
             table.insert(configs, "--arch=" .. arch)
             table.insert(configs, "--cpu=" .. cpu)
-            table.insert(configs, "--cc=" .. path.join(bin, triple .. ndk_sdkver .. "-clang"))
-            table.insert(configs, "--cxx=" .. path.join(bin, triple .. ndk_sdkver .. "-clang++"))
-            table.insert(configs, "--strip=" .. path.join(bin, "llvm-strip"))
+            table.insert(configs, "--cc=" .. _translate_path(path.join(bin, triple .. ndk_sdkver .. "-clang")))
+            table.insert(configs, "--cxx=" .. _translate_path(path.join(bin, triple .. ndk_sdkver .. "-clang++")))
+            table.insert(configs, "--ar=" .. _translate_path(path.join(bin, "llvm-ar")))
+            table.insert(configs, "--ranlib=" .. _translate_path(path.join(bin, "llvm-ranlib")))
+            table.insert(configs, "--strip=" .. _translate_path(path.join(bin, "llvm-strip")))
             table.insert(configs, "--extra-cflags=" .. table.concat(cflags, ' '))
             table.insert(configs, "--extra-cxxflags=" .. table.concat(cxxflags, ' '))
-            table.insert(configs, "--sysroot=" .. sysroot)
-            table.insert(configs, "--cross-prefix=" .. cross_prefix)
-            table.insert(configs, "--prefix=" .. package:installdir())
-            os.vrunv("./configure", configs)
-            local argv = {"-j4"}
-            if option.get("verbose") then
+            table.insert(configs, "--sysroot=" .. _translate_path(sysroot))
+            table.insert(configs, "--cross-prefix=" .. _translate_path(cross_prefix))
+            table.insert(configs, "--prefix=" .. _translate_path(package:installdir()))
+            os.vrunv("./configure", configs, {shell = true})
+            local njob = option.get("jobs") or tostring(os.default_njob())
+            local argv = {"-j" .. njob}
+            if option.get("verbose") or is_host("windows") then -- we always need enable it on windows, otherwise it will fail.
                 table.insert(argv, "V=1")
             end
             os.vrunv("make", argv)
             os.vrun("make install")
         else
+            if package:is_cross() then
+                table.insert(configs, "--enable-cross-compile")
+                table.insert(configs, "--arch=" .. package:targetarch())
+                configs.host = "" -- prevents xmake to add a --host=xx parameter
+            end
             import("package.tools.autoconf").install(package, configs)
         end
         package:addenv("PATH", "bin")
