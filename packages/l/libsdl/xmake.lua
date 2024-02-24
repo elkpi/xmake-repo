@@ -36,6 +36,7 @@ package("libsdl")
     add_versions("archive:2.28.3", "2308d4e4cd5852b3b81934dcc94603454834c14bef49de1cb1230c37ea6dc15c")
     add_versions("archive:2.28.4", "b53b9b42e731a33552d0a533316a88009b423c16a8a3a418df9ffe498c37da3d")
     add_versions("archive:2.28.5", "97bd14ee0ec67494d2b93f1a4f7da2bf891103c57090d96fdcc2b019d885c76a")
+    add_versions("archive:2.30.0", "80b0c02b6018630cd40639ac9fc8e5c1d8eec14d8fe3e6dfa76343e3ba8b78d9")
     add_versions("github:2.0.8",  "release-2.0.8")
     add_versions("github:2.0.12", "release-2.0.12")
     add_versions("github:2.0.14", "release-2.0.14")
@@ -57,6 +58,9 @@ package("libsdl")
     add_versions("github:2.28.3", "release-2.28.3")
     add_versions("github:2.28.4", "release-2.28.4")
     add_versions("github:2.28.5", "release-2.28.5")
+    add_versions("github:2.30.0", "release-2.30.0")
+
+    add_patches("2.30.0", "https://github.com/libsdl-org/SDL/commit/6a83588fdda0f70465ecd8b0231e753f434abeb1.patch", "f23b5c2035cb271559de45b76cb279dc72adfd89b24c7ec055ea1f99ab9bf606")
 
     add_deps("cmake")
 
@@ -81,8 +85,13 @@ package("libsdl")
     end
 
     on_load(function (package)
-        if package:config("sdlmain") or package:config("use_sdlmain") then
+        if package:config("sdlmain") then
             package:add("components", "main")
+            if package:is_plat("mingw") then
+                -- MinGW requires linking mingw32 before SDL2main
+                local libsuffix = package:is_debug() and "d" or ""
+                package:add("linkorders", "mingw32", "SDL2main" .. libsuffix)
+            end
         else
             package:add("defines", "SDL_MAIN_HANDLED")
         end
@@ -99,10 +108,9 @@ package("libsdl")
         local libsuffix = package:is_debug() and "d" or ""
         component:add("links", "SDL2main" .. libsuffix)
         if package:is_plat("windows") then
-            component:add("ldflags", "-subsystem:windows")
             component:add("syslinks", "shell32")
         elseif package:is_plat("mingw") then
-            component:add("ldflags", "-Wl,-subsystem,windows")
+            component:add("syslinks", "mingw32")
         end
         component:add("deps", "lib")
     end)
@@ -226,12 +234,9 @@ package("libsdl")
     on_test(function (package)
         assert(package:check_cxxsnippets({test = [[
             #include <SDL2/SDL.h>
-            #if defined(__MINGW32__) || defined(__MINGW64__)
-            #   undef main
-            #endif
             int main(int argc, char** argv) {
                 SDL_Init(0);
                 return 0;
             }
-        ]]}));
+        ]]}, {configs = {defines = "SDL_MAIN_HANDLED"}}));
     end)
