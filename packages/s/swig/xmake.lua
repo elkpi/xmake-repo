@@ -7,10 +7,12 @@ package("swig")
 
     if is_host("windows") then
         add_urls("https://sourceforge.net/projects/swig/files/swigwin/swigwin-$(version)/swigwin-$(version).zip")
+        add_versions("3.0.12", "21ce6cbe297a56b697ef6e7e92a83e75ca41dedc87e48282ab444591986c35f5")
         add_versions("4.0.2", "daadb32f19fe818cb9b0015243233fc81584844c11a48436385e87c050346559")
         add_versions("4.1.1", "2ec3107e24606db535d77ef3dbf246dc6eccbf1d5c868dce365d7f7fb19a1a51")
     else
         add_urls("https://sourceforge.net/projects/swig/files/swig/swig-$(version)/swig-$(version).tar.gz")
+        add_versions("3.0.12", "7cf9f447ae7ed1c51722efc45e7f14418d15d7a1e143ac9f09a668999f4fc94d")
         add_versions("4.0.2", "d53be9730d8d58a16bf0cbd1f8ac0c0c3e1090573168bfa151b01eb47fa906fc")
         add_versions("4.1.1", "2af08aced8fcd65cdb5cc62426768914bedc735b1c250325203716f78e39ac9b")
     end
