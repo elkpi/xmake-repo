@@ -44,20 +44,30 @@ package("sqlite3")
                 table.insert(configs, "--enable-debug")
             end
             import("package.tools.autoconf").install(package, configs)
-        else
-            local xmake_lua = [[
-                add_rules("mode.debug", "mode.release")
-                target("sqlite3")
-                    set_kind("$(kind)")
-                    add_files("sqlite3.c")
-                    add_headerfiles("sqlite3.h", "sqlite3ext.h")
-                    add_defines("SQLITE_ENABLE_EXPLAIN_COMMENTS", "SQLITE_ENABLE_DBPAGE_VTAB", "SQLITE_ENABLE_STMTVTAB", "SQLITE_ENABLE_DBSTAT_VTAB", "SQLITE_ENABLE_MATH_FUNCTIONS")
-                    if is_kind("shared") and is_plat("windows") then
-                        add_defines("SQLITE_API=__declspec(dllexport)")
-                    end
-                    if is_plat("macosx", "linux", "bsd") then
-                        add_syslinks("pthread", "dl")
-                    end
+            return
+        end
+        local xmake_lua = [[
+            add_rules("mode.debug", "mode.release")
+            set_encodings("utf-8")
+            target("sqlite3")
+                set_kind("$(kind)")
+                add_files("sqlite3.c")
+                add_headerfiles("sqlite3.h", "sqlite3ext.h")
+                add_defines("SQLITE_ENABLE_EXPLAIN_COMMENTS", "SQLITE_ENABLE_DBPAGE_VTAB", "SQLITE_ENABLE_STMTVTAB", "SQLITE_ENABLE_DBSTAT_VTAB", "SQLITE_ENABLE_MATH_FUNCTIONS")
+                if is_kind("shared") and is_plat("windows") then
+                    add_defines("SQLITE_API=__declspec(dllexport)")
+                end
+                if is_plat("macosx", "linux", "bsd") then
+                    add_syslinks("pthread", "dl")
+                end
+        ]]
+        if package:is_plat(os.host()) and (package:is_arch(os.arch()) or package:is_plat("windows")) then
+            xmake_lua = xmake_lua .. [[
+                target("sqlite3_shell")
+                    set_kind("binary")
+                    set_basename("sqlite3")
+                    add_files("shell.c")
+                    add_deps("sqlite3")
             ]]
             if package:is_plat(os.host()) and (package:is_arch(os.arch()) or package:is_plat("windows")) then
                 xmake_lua = xmake_lua .. [[
