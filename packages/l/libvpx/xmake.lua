@@ -15,9 +15,10 @@ package("libvpx")
 
     on_install(function (package)
         local configs = {
-            "--enable-vp8", "--enable-vp9", "--enable-libyuv", "--enable-pic",
+            "--enable-vp8", "--enable-vp9", "--enable-libyuv",
             "--disable-examples", "--disable-tools", "--disable-docs",
             "--disable-install-bins", "--disable-install-srcs",
+            "--disable-unit-tests", "--disable-decode-perf-tests", "--disable-encode-perf-tests",
             "--size-limit=16384x16384"
         }
         local cflags = {}
