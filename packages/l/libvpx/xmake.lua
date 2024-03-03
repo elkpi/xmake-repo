@@ -6,6 +6,7 @@ package("libvpx")
 
     add_urls("https://github.com/webmproject/libvpx.git", {alias = "github"})
 
+    add_versions("github:v1.8.1", "8ae686757b708cd8df1d10c71586aff5355cfe1e")
     add_versions("github:v1.13.0", "d6eb9696aa72473c1a11d34d928d35a3acc0c9a9")
     add_deps("nasm", "libyuv")
 
