@@ -28,11 +28,16 @@ package("openssl")
     on_fetch("fetch")
 
     on_load(function (package)
-        if package:is_plat("windows") and (not package.is_built or package:is_built()) then
-            package:add("deps", "nasm")
-            -- the perl executable found in GitForWindows will fail to build OpenSSL
-            -- see https://github.com/openssl/openssl/blob/master/NOTES-PERL.md#perl-on-windows
-            package:add("deps", "strawberry-perl", { system = false })
+        if not package:is_precompiled() then
+            if package:is_plat("android") and is_subhost("windows") and os.arch() == "x64" then
+                -- when building for android on windows, use msys2 perl instead of strawberry-perl to avoid configure issue
+                package:add("deps", "msys2", {configs = {msystem = "MINGW64", base_devel = true}, private = true})
+            elseif is_subhost("windows") and not package:is_precompiled() then
+                package:add("deps", "nasm", { private = true })
+                -- the perl executable found in GitForWindows will fail to build OpenSSL
+                -- see https://github.com/openssl/openssl/blob/master/NOTES-PERL.md#perl-on-windows
+                package:add("deps", "strawberry-perl", { system = false, private = true })
+            end
         end
 
         -- @note we must use package:is_plat() instead of is_plat in description for supporting add_deps("openssl", {host = true}) in python
@@ -130,21 +135,25 @@ package("openssl")
                 table.insert(configs, "no-threads")
             end
         end
-        table.insert(configs, "--openssldir=" .. package:installdir())
-        table.insert(configs, "--prefix=" .. package:installdir())
+        table.insert(configs, "--openssldir=" .. package:installdir():gsub("\\", "/"))
+        table.insert(configs, "--prefix=" .. package:installdir():gsub("\\", "/"))
         table.insert(configs, package:config("shared") and "shared" or "no-shared")
         if package:debug() then
             table.insert(configs, "--debug")
         end
-        if package:version_str() == "1.0.2-u" then
-            table.insert(configs, "-fPIC")
+        local buildenvs = import("package.tools.autoconf").buildenvs(package)
+        if package:is_cross() then
+            if is_host("windows") and package:is_plat("android") then
+                buildenvs.CFLAGS = buildenvs.CFLAGS:gsub("\\", "/")
+                buildenvs.CXXFLAGS = buildenvs.CXXFLAGS:gsub("\\", "/")
+                buildenvs.CPPFLAGS = buildenvs.CPPFLAGS:gsub("\\", "/")
+                buildenvs.ASFLAGS = buildenvs.ASFLAGS:gsub("\\", "/")
+            end
+            os.vrunv("perl", table.join("./Configure", configs), {envs = buildenvs})
+        else
+            os.vrunv("./config", configs, {shell = true, envs = buildenvs})
         end
-        os.vrunv("./config", configs, {envs = buildenvs})
-        local makeconfigs = {}
-        if package:version_str() ~= "1.0.2-u" then
-            makeconfigs = {CFLAGS = buildenvs.CFLAGS, ASFLAGS = buildenvs.ASFLAGS}
-        end
-        import("package.tools.make").build(package, makeconfigs)
+        import("package.tools.make").build(package)
         import("package.tools.make").make(package, {"install_sw"})
         if package:config("shared") then
             os.tryrm(path.join(package:installdir("lib"), "*.a"))
