@@ -139,6 +139,7 @@ package("openssl")
         if package:version_str() == "1.0.2-u" then
             table.insert(configs, "-fPIC")
         end
+        local buildenvs = import("package.tools.autoconf").buildenvs(package)
         os.vrunv("./config", configs, {envs = buildenvs})
         local makeconfigs = {}
         if package:version_str() ~= "1.0.2-u" then
