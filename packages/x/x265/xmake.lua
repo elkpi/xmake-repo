@@ -53,8 +53,10 @@ package("x265")
         if package:version() then
             table.insert(configs, "-DX265_LATEST_TAG=" .. package:version():rawstr())
         end
-        table.insert(configs, "--trace")
         import("package.tools.cmake").install(package, configs)
+        if package:is_plat("windows") then -- fix x265.pc
+            io.replace(path.join(package:installdir("lib", "pkgconfig"), "x265.pc"), "-lx265", "-lx265-static", {plain = true})
+        end
     end)
 
     on_test(function (package)

@@ -5,6 +5,9 @@ package("imgui")
 
     add_urls("https://github.com/ocornut/imgui/archive/refs/tags/$(version).tar.gz",
              "https://github.com/ocornut/imgui.git")
+
+    add_versions("v1.90.4-docking", "v1.90.4-docking")
+    add_versions("v1.90.4", "5d9dc738af74efa357f2a9fc39fe4a28d29ef1dfc725dd2977ccf3f3194e996e")
     add_versions("v1.90.3-docking", "v1.90.3-docking")
     add_versions("v1.90.3", "40b302d01092c9393373b372fe07ea33ac69e9491893ebab3bf952b2c1f5fd23")
     add_versions("v1.90.2-docking", "v1.90.2-docking")
@@ -155,8 +158,10 @@ package("imgui")
     on_test(function (package)
         if package:config("user_config") ~= nil then return end
         local includes = {"imgui.h"}
+        local defines
         if package:config("sdl2_renderer") or package:config("sdl2_no_renderer") then
             table.insert(includes, "SDL.h")
+            defines = "SDL_MAIN_HANDLED"
         end
         assert(package:check_cxxsnippets({test = [[
             void test() {
@@ -169,5 +174,5 @@ package("imgui")
                 ImGui::Render();
                 ImGui::DestroyContext();
             }
-        ]]}, {configs = {languages = "c++11"}, includes = includes}))
+        ]]}, {configs = {languages = "c++14", defines = defines}, includes = includes}))
     end)

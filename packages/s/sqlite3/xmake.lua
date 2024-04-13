@@ -31,6 +31,7 @@ package("sqlite3")
     add_versions("3.39.0+200", "852be8a6183a17ba47cee0bbff7400b7aa5affd283bf3beefc34fcd088a239de")
     add_versions("3.43.0+200", "6d422b6f62c4de2ca80d61860e3a3fb693554d2f75bb1aaca743ccc4d6f609f0")
     add_versions("3.45.0+100", "cd9c27841b7a5932c9897651e20b86c701dd740556989b01ca596fcfa3d49a0a")
+    add_versions("3.45.0+200", "bc9067442eedf3dd39989b5c5cfbfff37ae66cc9c99274e0c3052dc4d4a8f6ae")
 
     if is_plat("macosx", "linux", "bsd", "cross") then
         add_syslinks("pthread", "dl")
@@ -44,30 +45,21 @@ package("sqlite3")
                 table.insert(configs, "--enable-debug")
             end
             import("package.tools.autoconf").install(package, configs)
-            return
-        end
-        local xmake_lua = [[
-            add_rules("mode.debug", "mode.release")
-            set_encodings("utf-8")
-            target("sqlite3")
-                set_kind("$(kind)")
-                add_files("sqlite3.c")
-                add_headerfiles("sqlite3.h", "sqlite3ext.h")
-                add_defines("SQLITE_ENABLE_EXPLAIN_COMMENTS", "SQLITE_ENABLE_DBPAGE_VTAB", "SQLITE_ENABLE_STMTVTAB", "SQLITE_ENABLE_DBSTAT_VTAB", "SQLITE_ENABLE_MATH_FUNCTIONS")
-                if is_kind("shared") and is_plat("windows") then
-                    add_defines("SQLITE_API=__declspec(dllexport)")
-                end
-                if is_plat("macosx", "linux", "bsd") then
-                    add_syslinks("pthread", "dl")
-                end
-        ]]
-        if package:is_plat(os.host()) and (package:is_arch(os.arch()) or package:is_plat("windows")) then
-            xmake_lua = xmake_lua .. [[
-                target("sqlite3_shell")
-                    set_kind("binary")
-                    set_basename("sqlite3")
-                    add_files("shell.c")
-                    add_deps("sqlite3")
+        else
+            local xmake_lua = [[
+                add_rules("mode.debug", "mode.release")
+                set_encodings("utf-8")
+                target("sqlite3")
+                    set_kind("$(kind)")
+                    add_files("sqlite3.c")
+                    add_headerfiles("sqlite3.h", "sqlite3ext.h")
+                    add_defines("SQLITE_ENABLE_EXPLAIN_COMMENTS", "SQLITE_ENABLE_DBPAGE_VTAB", "SQLITE_ENABLE_STMTVTAB", "SQLITE_ENABLE_DBSTAT_VTAB", "SQLITE_ENABLE_MATH_FUNCTIONS")
+                    if is_kind("shared") and is_plat("windows") then
+                        add_defines("SQLITE_API=__declspec(dllexport)")
+                    end
+                    if is_plat("macosx", "linux", "bsd") then
+                        add_syslinks("pthread", "dl")
+                    end
             ]]
             if package:is_plat(os.host()) and (package:is_arch(os.arch()) or package:is_plat("windows")) then
                 xmake_lua = xmake_lua .. [[
