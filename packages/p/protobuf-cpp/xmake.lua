@@ -3,8 +3,14 @@ package("protobuf-cpp")
     set_homepage("https://developers.google.com/protocol-buffers/")
     set_description("Google's data interchange format for cpp")
 
-    add_urls("https://github.com/protocolbuffers/protobuf/releases/download/v$(version)/protobuf-cpp-$(version).zip")
-    add_urls("https://github.com/protocolbuffers/protobuf/releases/download/v$(version)/protobuf-$(version).zip")
+    add_urls("https://github.com/protocolbuffers/protobuf/releases/download/v$(version)", {version = function (version)
+        if version:le("3.19.4") then
+            return version .. "/protobuf-cpp-" .. version .. ".zip"
+        else
+            return version .. "/protobuf-" .. version .. ".zip"
+        end
+    end})
+
     add_versions("3.8.0", "91ea92a8c37825bd502d96af9054064694899c5c7ecea21b8d11b1b5e7e993b5")
 	add_versions("3.12.0", "da826a3c48a9cae879928202d6fe06afb15aaee129e9035d6510cc776ddfa925")
     add_versions("3.12.3", "74da289e0d0c24b2cb097f30fdc09fa30754175fd5ebb34fae4032c6d95d4ce3")
@@ -18,10 +24,11 @@ package("protobuf-cpp")
 
     add_patches("3.17.3", path.join(os.scriptdir(), "patches", "3.17.3", "field_access_listener.patch"), "ac9bdf49611b01e563fe74b2aaf1398214129454c3e18f1198245549eb281e85")
     add_patches("3.19.4", path.join(os.scriptdir(), "patches", "3.19.4", "vs_runtime.patch"), "8e73e585d29f3b9dca3c279df0b11b3ee7651728c07f51381a69e5899b93c367")
+    add_patches("26.1", path.join(os.scriptdir(), "patches", "26.1", "use_abseil_links.patch"), "123e3f4b0c602f3fc0470d58cd1be1837ddf41da070d5299041b5891595b2487")
 
     add_configs("zlib", {description = "Enable zlib", default = false, type = "boolean"})
 
-    add_deps("cmake", "abseil")
+    add_deps("cmake")
 
     if is_plat("windows") then
         add_links("libprotobuf")
@@ -38,15 +45,26 @@ package("protobuf-cpp")
         if package:config("zlib") then
             package:add("deps", "zlib")
         end
+        if package:version():ge("22.0") then
+            package:add("deps", "abseil")
+        end
     end)
 
     on_install("windows", "linux", "macosx", function (package)
-        -- os.cd("cmake")
+        if package:version():le("3.19.4") then
+            os.cd("cmake")
+        end
         io.replace("CMakeLists.txt", "set(protobuf_DEBUG_POSTFIX \"d\"", "set(protobuf_DEBUG_POSTFIX \"\"", {plain = true})
-        local configs = {"-Dprotobuf_BUILD_TESTS=OFF",
-                         "-Dprotobuf_BUILD_PROTOC_BINARIES=ON",
-                         "-Dprotobuf_ABSL_PROVIDER=package"}
+     
+        local configs = {"-Dprotobuf_BUILD_TESTS=OFF", "-Dprotobuf_BUILD_PROTOC_BINARIES=ON"}
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
+      
+        local packagedeps = {}
+        if package:version():ge("22.0") then
+            table.insert(packagedeps, "abseil")
+            table.insert(configs, "-Dprotobuf_ABSL_PROVIDER=package")
+        end
+
         if package:is_plat("windows") then
             table.insert(configs, "-Dprotobuf_MSVC_STATIC_RUNTIME=" .. (package:config("vs_runtime"):startswith("MT") and "ON" or "OFF"))
             if package:config("shared") then
@@ -56,7 +74,7 @@ package("protobuf-cpp")
         if package:config("zlib") then
             table.insert(configs, "-Dprotobuf_WITH_ZLIB=ON")
         end
-        import("package.tools.cmake").install(package, configs, {buildir = "build"})
+        import("package.tools.cmake").install(package, configs, {buildir = "build", packagedeps = packagedeps})
         os.trycp("build/Release/protoc.exe", package:installdir("bin"))
     end)
 
