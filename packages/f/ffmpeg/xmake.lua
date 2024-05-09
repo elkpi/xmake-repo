@@ -141,6 +141,10 @@ package("ffmpeg")
                 if enabled and package:version():le("4.0") then
                     table.insert(configs, "--enable-" .. name)
                 end
+            elseif name == "libdrm" then
+                if enabled and package:version():ge("4.0") then
+                    table.insert(configs, "--enable-" .. name)
+                end
             elseif not package:extraconf("configs", name, "builtin") then
                 if enabled then
                     table.insert(configs, "--enable-" .. name)
