@@ -23,7 +23,10 @@ package("mimalloc")
 
     add_configs("secure", {description = "Use a secured version of mimalloc", default = false, type = "boolean"})
     add_configs("rltgenrandom", {description = "Use a RtlGenRandom instead of BCrypt", default = false, type = "boolean"})
-
+    if is_plat("windows") then
+        add_configs("etw", {description = "Enable Event tracing for Windows", default = false, type = "boolean"})
+    end
+    
     add_deps("cmake")
 
     if is_plat("windows") then
@@ -35,12 +38,18 @@ package("mimalloc")
     end
 
     on_install("macosx", "windows", "linux", "android", "mingw", function (package)
-        local configs = {"-DMI_OVERRIDE=OFF"}
+        local configs = {
+            "-DMI_OVERRIDE=OFF",
+            "-DMI_BUILD_TESTS=OFF",
+            "-DMI_BUILD_OBJECT=OFF",
+        }
+
+        table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))
         table.insert(configs, "-DMI_BUILD_STATIC=" .. (package:config("shared") and "OFF" or "ON"))
         table.insert(configs, "-DMI_BUILD_SHARED=" .. (package:config("shared") and "ON" or "OFF"))
         table.insert(configs, "-DMI_SECURE=" .. (package:config("secure") and "ON" or "OFF"))
-        table.insert(configs, "-DMI_BUILD_TESTS=OFF")
-        table.insert(configs, "-DMI_BUILD_OBJECT=OFF")
+        table.insert(configs, "-DMI_TRACK_ETW=" .. (package:config("etw") and "ON" or "OFF"))
+
         --x64:mimalloc-redirect.lib/dll x86:mimalloc-redirect32.lib/dll
         if package:version():le("2.0.1") and package:config("shared") and package:is_plat("windows") and package:is_arch("x86") then
             io.replace("CMakeLists.txt", "-redirect.", "-redirect32.", {plain = true})
@@ -54,20 +63,29 @@ package("mimalloc")
                 package:configs().cxflags = "-DMI_USE_RTLGENRANDOM"
             end
         end
-        import("package.tools.cmake").build(package, configs, {buildir = "build", cxflags = cxflags})
 
-        if package:is_plat("windows") then
-            os.trycp("build/**.dll", package:installdir("bin"))
-            os.trycp("build/**.lib", package:installdir("lib"))
-        elseif package:is_plat("mingw") then
-            os.trycp("build/**.dll", package:installdir("bin"))
-            os.trycp("build/**.a", package:installdir("lib"))
+        if package:version():ge("2.1.2") then
+            table.insert(configs, "-DMI_INSTALL_TOPLEVEL=ON")
+            if package:is_plat("windows") then
+                table.insert(configs, "-DCMAKE_COMPILE_PDB_OUTPUT_DIRECTORY=''")
+            end
+            import("package.tools.cmake").install(package, configs, {cxflags = cxflags})
         else
-            os.trycp("build/*.so", package:installdir("bin"))
-            os.trycp("build/*.so", package:installdir("lib"))
-            os.trycp("build/*.a", package:installdir("lib"))
+            import("package.tools.cmake").build(package, configs, {buildir = "build", cxflags = cxflags})
+
+            if package:is_plat("windows") then
+                os.trycp("build/**.dll", package:installdir("bin"))
+                os.trycp("build/**.lib", package:installdir("lib"))
+            elseif package:is_plat("mingw") then
+                os.trycp("build/**.dll", package:installdir("bin"))
+                os.trycp("build/**.a", package:installdir("lib"))
+            else
+                os.trycp("build/*.so", package:installdir("bin"))
+                os.trycp("build/*.so", package:installdir("lib"))
+                os.trycp("build/*.a", package:installdir("lib"))
+            end
+            os.cp("include", package:installdir())
         end
-        os.cp("include", package:installdir())
     end)
 
     on_test(function (package)
