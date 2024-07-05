@@ -34,6 +34,12 @@ package("brpc")
         add_syslinks("rt", "dl")
     end
 
+    on_load(function (package)
+        if package:config("with_glog") then
+            package:add("deps", "glog")
+        end
+    end)
+
     on_install("linux", "macosx", function (package)
         local configs = {"-DWITH_DEBUG_SYMBOLS=OFF", "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON", "-DWITH_SNAPPY=ON"}
         if package:config("with_glog") then
