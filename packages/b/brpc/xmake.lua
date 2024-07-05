@@ -19,6 +19,9 @@ package("brpc")
     add_patches("1.4.0", path.join(os.scriptdir(), "patches", "1.4.0", "cmake.patch"), "006fa842e84a6e8091f236a12e7c44dd60962cc61fddf46bcfc65a2093383cef")
     add_patches("1.3.0", path.join(os.scriptdir(), "patches", "1.3.0", "cmake.patch"), "a71bf46a4a6038a89da3ee9057dea5f452155a2da1f1c9bdcae7ecd0bb5e0510")
 
+    -- https://github.com/apache/brpc/issues/577
+    add_configs("with_glog", {description = "With glog", default = false, type = "boolean"})
+
     -- we enable zlib in protobuf-cpp, because brpc need google/protobuf/io/gzip_stream.h
     add_deps("protobuf-cpp 3.19.4", {configs = {zlib = true}})
     add_deps("leveldb", "gflags", "openssl", "libzip", "snappy", "zlib")
@@ -33,6 +36,9 @@ package("brpc")
 
     on_install("linux", "macosx", function (package)
         local configs = {"-DWITH_DEBUG_SYMBOLS=OFF", "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON", "-DWITH_SNAPPY=ON"}
+        if package:config("with_glog") then
+            table.insert(configs, "-DWITH_GLOG=ON")
+        end
         io.replace("CMakeLists.txt", 'set(CMAKE_CXX_FLAGS "${CMAKE_CPP_FLAGS}', 'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CPP_FLAGS}', {plain = true})
         io.replace("CMakeLists.txt", 'set(CMAKE_C_FLAGS "${CMAKE_CPP_FLAGS}', 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CPP_FLAGS}', {plain = true})
         import("package.tools.cmake").install(package, configs, {packagedeps = "zlib"})
