@@ -20,7 +20,8 @@ package("brpc")
     add_patches("1.3.0", path.join(os.scriptdir(), "patches", "1.3.0", "cmake.patch"), "a71bf46a4a6038a89da3ee9057dea5f452155a2da1f1c9bdcae7ecd0bb5e0510")
 
     -- https://github.com/apache/brpc/issues/577
-    add_configs("with_glog", {description = "With glog", default = false, type = "boolean"})
+    add_configs("with_glog", {description = "With glog", default = true, type = "boolean"})
+    add_configs("with_thrift", {description = "With thrift", default = true, type = "boolean"})
 
     -- we enable zlib in protobuf-cpp, because brpc need google/protobuf/io/gzip_stream.h
     add_deps("protobuf-cpp 3.19.4", {configs = {zlib = true}})
@@ -36,18 +37,48 @@ package("brpc")
 
     on_load(function (package)
         if package:config("with_glog") then
-            package:add("deps", "glog")
+            package:add("deps", "glog <0.7.0", {configs = {unwind = true, shared = true}})
+        end
+        if package:config("with_thrift") then
+            package:add("deps", "thrift")
         end
     end)
 
     on_install("linux", "macosx", function (package)
-        local configs = {"-DWITH_DEBUG_SYMBOLS=OFF", "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON", "-DWITH_SNAPPY=ON"}
+        local configs = {"-DWITH_DEBUG_SYMBOLS=OFF", "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON", "-DWITH_SNAPPY=ON", "-DBUILD_UNIT_TESTS=OFF", "-DBUILD_BRPC_TOOLS=OFF"}
+
+        local cxflags = {}
+        -- local cflags = {}
+        -- local ldflags = {}
+
         if package:config("with_glog") then
             table.insert(configs, "-DWITH_GLOG=ON")
+            -- table.insert(cxflags, "-D_GLIBCXX_USE_CXX11_ABI=0")
+            local glog = package:dep("glog")
+            if glog and glog:version():ge("0.7.0") then
+                io.replace("CMakeLists.txt", 'set(CMAKE_CXX_STANDARD 11)', 'set(CMAKE_CXX_STANDARD 14)', {plain = true})
+            end
+        end
+        if package:config("with_thrift") then
+            table.insert(configs, "-DWITH_THRIFT=ON")
+        end
+        for _, dep in ipairs(package:orderdeps()) do
+            local fetchinfo = dep:fetch()
+            if fetchinfo then
+                for _, includedir in ipairs(fetchinfo.includedirs or fetchinfo.sysincludedirs) do
+                    table.insert(cxflags, "-I" .. includedir)
+                end
+                -- for _, linkdir in ipairs(fetchinfo.linkdirs) do
+                --     table.insert(ldflags, "-L" .. linkdir)
+                -- end
+                -- for _, link in ipairs(fetchinfo.links) do
+                --     table.insert(ldflags, "-l" .. link)
+                -- end
+            end
         end
         io.replace("CMakeLists.txt", 'set(CMAKE_CXX_FLAGS "${CMAKE_CPP_FLAGS}', 'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CPP_FLAGS}', {plain = true})
         io.replace("CMakeLists.txt", 'set(CMAKE_C_FLAGS "${CMAKE_CPP_FLAGS}', 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CPP_FLAGS}', {plain = true})
-        import("package.tools.cmake").install(package, configs, {packagedeps = "zlib"})
+        import("package.tools.cmake").install(package, configs, {packagedeps = "zlib", cxflags = cxflags})
         if not package:config("shared") then
             os.rm(package:installdir("lib/*.dylib"))
             os.rm(package:installdir("lib/*.so"))
