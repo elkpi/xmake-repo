@@ -1,5 +1,4 @@
 package("libyuv")
-
     set_homepage("https://chromium.googlesource.com/libyuv/libyuv/")
     set_description("libyuv is an open source project that includes YUV scaling and conversion functionality.")
     set_license("BSD-3-Clause")
@@ -35,6 +34,25 @@ package("libyuv")
                 os.tryrm(package:installdir("lib", "*.so"))
             end
         end
+
+        if package:config("shared") then
+            package:add("defines", "LIBYUV_USING_SHARED_LIBRARY")
+        end
+    end)
+
+    on_install("!cross", function (package)
+        if package:is_plat("iphoneos") then
+            io.replace("CMakeLists.txt",
+                [[STRING(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" arch_lowercase)]],
+                [[set(arch_lowercase "]] .. package:arch() .. [[")]], {plain = true})
+        end
+
+        local configs = {"-DCMAKE_CXX_STANDARD=14"}
+        table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))
+        table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
+        table.insert(configs, "-DLIBYUV_WITH_JPEG=" .. (package:config("jpeg") and "ON" or "OFF"))
+        table.insert(configs, "-DBUILD_TOOLS=" .. (package:config("tools") and "ON" or "OFF"))
+        import("package.tools.cmake").install(package, configs)
     end)
 
     on_test(function (package)
