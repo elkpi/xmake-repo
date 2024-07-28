@@ -3,7 +3,7 @@ package("idl_elkpi")
     add_deps("protobuf-cpp")
 
     add_urls("git@code.elkpi.com:idl/services.git")
-    add_versions("main", "a854bcf40eee72666cee411c2c91f50eeedc1b20")
+    add_versions("main", "c505d464962dd45af6a5932efbebfad1875b40cf")
 
     on_install(function (package)
         local configs = {}
