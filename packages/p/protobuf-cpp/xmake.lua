@@ -15,6 +15,9 @@ package("protobuf-cpp")
     add_versions("27.0", "3e1148db090ff21226c1888ef39fa7bc7790042be21ff4289fd21ce1735f3455")
     add_versions("26.1", "e15c272392df84ae95797759c685a9225fe5e88838bab3e0650c29239bdfccdd")
     add_versions("25.4", "0509efc592e868d43babe6c30437b47f3d77937636110a5595328cc3e1e5f214")
+    add_versions("24.4", "65dea1db075fc4d85de6a62ba977ca148cad5dc03fbb5e519bef64166c94c823")
+    add_versions("23.4", "ac3fd4e97af55405d8bfba43c22d8a7e464a371bb6bc9e706627b745c1022dbf")
+    add_versions("22.5", "dbd3446f1ce7200f27edc2cd5914153322735088d1cb9dedf4c52eb7396ac48d")
     add_versions("3.8.0", "91ea92a8c37825bd502d96af9054064694899c5c7ecea21b8d11b1b5e7e993b5")
 	add_versions("3.12.0", "da826a3c48a9cae879928202d6fe06afb15aaee129e9035d6510cc776ddfa925")
     add_versions("3.12.3", "74da289e0d0c24b2cb097f30fdc09fa30754175fd5ebb34fae4032c6d95d4ce3")
@@ -47,7 +50,12 @@ package("protobuf-cpp")
         if package:config("zlib") then
             package:add("deps", "zlib")
         end
-        if package:version():ge("22.0") then
+        if package:version():major() == 22 then
+            package:add("deps", "abseil 20230125.2")
+        elseif package:version():major() == 23 then
+            package:add("deps", "abseil 20230802.1")
+        end
+        if package:version():ge("24.0") then
             package:add("deps", "abseil")
         end
     end)
