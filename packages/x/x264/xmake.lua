@@ -3,7 +3,8 @@ package("x264")
     set_description("A free software library and application for encoding video streams into the H.264/MPEG-4 AVC compression format.")
 
     add_urls("https://code.videolan.org/videolan/x264.git",
-             "https://github.com/mirror/x264.git")
+             "https://github.com/mirror/x264.git",
+             "git@code.elkpi.com:third_party/x264.git")
     add_versions("v2023.04.04", "eaa68fad9e5d201d42fde51665f2d137ae96baf0")
     add_versions("v2021.09.29", "66a5bc1bd1563d8227d5d18440b525a09bcf17ca")
     add_versions("v2018.09.25", "545de2ffec6ae9a80738de1b2c8cf820249a2530")
@@ -91,7 +92,10 @@ package("x264")
             os.vrunv("make", argv, {envs = envs})
             os.vrunv("make", {"install"}, {envs = envs})
         else
-            import("package.tools.autoconf").install(package, configs)
+            import("package.tools.autoconf")
+            local envs = autoconf.buildenvs(package)
+            envs.CC = package:build_getenv("cc")
+            autoconf.install(package, configs, {envs = envs})
         end
     end)
 
