@@ -38,12 +38,12 @@ package("brpc")
 
     on_load(function (package)
         if package:config("with_glog") then
-            package:add("deps", "glog <0.7.0", {configs = {unwind = true, shared = true}})
+            package:add("deps", "glog", {configs = {unwind = true, shared = true}})
         end
         if package:config("with_thrift") then
             package:add("deps", "thrift")
         end
-        if package:version():le("1.9.0") then
+        if package:version():ge("1.9.0") then
             package:add("deps", "protobuf-cpp <24", {configs = {zlib = true, shared = true}})
         else
             package:add("deps", "protobuf-cpp 3.19.4", {configs = {zlib = true}})
@@ -97,7 +97,7 @@ package("brpc")
     on_test(function (package)
         local languages = "c++11"
 
-        if package:dep("protobuf-cpp"):version():ge("22.0") then
+        if package:dep("protobuf-cpp"):version():ge("22.0") or package:dep("glog"):version():ge("0.7.0") then
             languages = "c++17"
         end
 
