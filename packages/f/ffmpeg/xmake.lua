@@ -347,13 +347,28 @@ package("ffmpeg")
             os.vrunv("make", argv)
             os.vrun("make install")
         else
-            local opt
+            local opt = {}
             if package:is_plat("macosx") and package:is_arch("arm.*") and package:config("shared") then
                 opt = {}
                 -- https://github.com/spack/spack/issues/40159
                 opt.shflags = "-Wl,-ld_classic"
             end
-            import("package.tools.autoconf").install(package, configs, opt)
+            import("package.tools.autoconf")
+            local envs = autoconf.buildenvs(package)
+            envs.CC = package:build_getenv("cc")
+            envs.CXX = package:build_getenv("cxx")
+            envs.AR = package:build_getenv("ar")
+            envs.RANLIB = package:build_getenv("ranlib")
+            envs.STRIP = package:build_getenv("strip")
+
+            table.insert(configs, "--cc=" .. envs.CC)
+            table.insert(configs, "--cxx=" .. envs.CXX)
+            table.insert(configs, "--ar=" .. envs.AR)
+            table.insert(configs, "--ranlib=" .. envs.RANLIB)
+            table.insert(configs, "--strip=" .. envs.STRIP)
+
+            opt.envs = envs
+            autoconf.install(package, configs, opt)
         end
         package:addenv("PATH", "bin")
     end)
