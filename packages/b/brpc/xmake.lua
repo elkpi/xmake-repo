@@ -26,7 +26,6 @@ package("brpc")
     add_configs("with_thrift", {description = "With thrift", default = true, type = "boolean"})
 
     -- we enable zlib in protobuf-cpp, because brpc need google/protobuf/io/gzip_stream.h
-    add_deps("protobuf-cpp 3.19.4", {configs = {zlib = true}})
     add_deps("leveldb", "gflags", "openssl", "libzip", "snappy", "zlib")
     add_deps("cmake")
 
@@ -43,6 +42,11 @@ package("brpc")
         end
         if package:config("with_thrift") then
             package:add("deps", "thrift")
+        end
+        if package:version():le("1.9.0") then
+            package:add("deps", "protobuf-cpp <24", {configs = {zlib = true, shared = true}})
+        else
+            package:add("deps", "protobuf-cpp 3.19.4", {configs = {zlib = true}})
         end
     end)
 
@@ -91,6 +95,12 @@ package("brpc")
     end)
 
     on_test(function (package)
+        local languages = "c++11"
+
+        if package:dep("protobuf-cpp"):version():ge("22.0") then
+            languages = "c++17"
+        end
+
         assert(package:check_cxxsnippets({
             test = [[
               #include <brpc/server.h>
@@ -98,5 +108,5 @@ package("brpc")
                 brpc::Server server;
               }
             ]]
-        }, {configs = {languages = "c++11"}}))
+        }, {configs = {languages = languages}}))
     end)
