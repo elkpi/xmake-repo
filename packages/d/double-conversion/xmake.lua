@@ -10,7 +10,7 @@ package("double-conversion")
     add_versions("v3.1.5", "a63ecb93182134ba4293fd5f22d6e08ca417caafa244afaa751cbfddf6415b13")
 
     add_deps("cmake")
-    on_install("windows", "linux", "macosx", function (package)
+    on_install("windows", "linux", "macosx", "cross", function (package)
         local configs = {"-DBUILD_TESTING=OFF"}
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
