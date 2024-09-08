@@ -26,7 +26,7 @@ package("libevent")
         end
     end)
 
-    on_install("windows", "linux", "macosx", function (package)
+    on_install("windows", "linux", "macosx", "cross", function (package)
         io.replace("CMakeLists.txt", "advapi32", "advapi32 crypt32", {plain = true})
         if package:version():eq("2.1.12") then
             io.replace("cmake/LibeventConfig.cmake.in",
