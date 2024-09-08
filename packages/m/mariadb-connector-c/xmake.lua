@@ -53,7 +53,7 @@ package("mariadb-connector-c")
         end
     end)
 
-    on_install("bsd", "linux", "windows", "android", function(package)
+    on_install("bsd", "linux", "windows", "android", "cross", function(package)
         io.replace("CMakeLists.txt", "-Werror", "", {plain = true})
         local configs = {}
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
