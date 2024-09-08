@@ -60,7 +60,7 @@ package("protobuf-cpp")
         end
     end)
 
-    on_install("windows", "linux", "macosx", function (package)
+    on_install("windows", "linux", "macosx", "cross", function (package)
         if package:version():le("3.19.4") then
             os.cd("cmake")
         end
