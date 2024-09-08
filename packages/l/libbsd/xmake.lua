@@ -9,7 +9,7 @@ package("libbsd")
 
     add_deps("libmd")
     add_links("bsd")
-    on_install("linux", function (package)
+    on_install("linux", "cross", function (package)
         local configs = {"--disable-dependency-tracking"}
         table.insert(configs, "--enable-static=" .. (package:config("shared") and "no" or "yes"))
         table.insert(configs, "--enable-shared=" .. (package:config("shared") and "yes" or "no"))
