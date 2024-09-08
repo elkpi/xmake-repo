@@ -21,7 +21,7 @@ package("openh264")
         end
     end)
 
-    on_install("windows", "linux", function (package)
+    on_install("windows", "linux", "cross", function (package)
         if package:version():ge("2.4.1") then
             import("package.tools.meson")
 
