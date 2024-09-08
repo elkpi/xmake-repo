@@ -37,6 +37,7 @@ local options =
 ,   {nil, "appledev",       "kv", nil, "The Apple Device Type"                      }
 ,   {nil, "mingw",          "kv", nil, "Set the MingW directory."                   }
 ,   {nil, "toolchain",      "kv", nil, "Set the toolchain name."                    }
+,   {nil, "cross",          "kv", nil, "Set cross" }
 ,   {nil, "packages",       "vs", nil, "The package list."                          }
 }
 
@@ -109,6 +110,9 @@ function _require_packages(argv, packages)
     end
     if argv.toolchain then
         table.insert(config_argv, "--toolchain=" .. argv.toolchain)
+    end
+    if argv.cross then
+        table.insert(config_argv, "--cross=" .. argv.cross)
     end
     if argv.cflags then
         table.insert(config_argv, "--cflags=" .. argv.cflags)
