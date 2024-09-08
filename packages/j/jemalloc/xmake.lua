@@ -27,7 +27,7 @@ fragmentation avoidance and scalable concurrency support]])
         end
     end)
 
-    on_install("linux", "macosx", "mingw@macosx", function(package)
+    on_install("linux", "macosx", "mingw@macosx", "cross", function(package)
         local configs = {"--disable-debug",
                          "--with-jemalloc-prefix="}
         table.insert(configs, "--enable-shared=" .. (package:config("shared") and "yes" or "no"))
