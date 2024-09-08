@@ -49,7 +49,7 @@ package("x264")
         end
     end)
 
-    on_install("windows", "mingw", "linux", "macosx", "wasm", "android", function (package)
+    on_install("windows", "mingw", "linux", "macosx", "wasm", "android", "cross", function (package)
         local configs = {}
 
         table.insert(configs, "--enable-" .. (package:config("shared") and "shared" or "static"))
