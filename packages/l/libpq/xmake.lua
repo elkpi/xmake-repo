@@ -19,7 +19,7 @@ package("libpq")
         add_deps("zlib")
     end
 
-    on_install("macosx", "linux", "android", function (package)
+    on_install("macosx", "linux", "android", "cross", function (package)
         local configs = {"--with-openssl", "--without-readline"}
         table.insert(configs, "--enable-shared=" .. (package:config("shared") and "yes" or "no"))
         table.insert(configs, "--enable-static=" .. (package:config("shared") and "no" or "yes"))
@@ -35,6 +35,16 @@ package("libpq")
 
         if package:version_str() == "13.8" then
             table.insert(configs, "LIBS=-lpthread -ldl")
+        end
+
+        if is_plat("cross") then
+            local cross_configs = {
+                "ZIC=/usr/sbin/zic",
+            }
+
+            for _, c in ipairs(cross_configs) do
+                table.insert(configs, c)
+            end
         end
 
         import("package.tools.autoconf").install(package, configs, {packagedeps = {"openssl", "zlib"}})
