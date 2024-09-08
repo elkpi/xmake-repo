@@ -55,7 +55,7 @@ package("xz")
         import("package.tools.xmake").install(package, configs)
     end)
 
-    on_install("macosx", "linux", "mingw@linux,macosx", function (package)
+    on_install("macosx", "linux", "mingw@linux,macosx", "cross", function (package)
         local configs = {"--disable-dependency-tracking", "--disable-silent-rules"}
         if package:debug() then
             table.insert(configs, "--enable-debug")
