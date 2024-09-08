@@ -29,7 +29,10 @@ package("libtiff")
                         webp       = "libwebp"}
 
     add_deps("cmake")
-    on_load("windows", "mingw", "macosx", "linux", "bsd", "android", function (package)
+    if is_plat("cross") then
+        add_syslinks("m")
+    end
+    on_load("windows", "mingw", "macosx", "linux", "bsd", "android", "cross", function (package)
         for config, dep in pairs(configdeps) do
             if package:config(config) then
                 if config == "zlib" and is_plat("android") then
@@ -41,12 +44,20 @@ package("libtiff")
         end
     end)
 
-    on_install("windows", "mingw", "macosx", "linux", "bsd", "android", function (package)
+    on_install("windows", "mingw", "macosx", "linux", "bsd", "android", "cross", function (package)
         local configs = {"-Dlzma=OFF", "-Djbig=OFF", "-Dpixarlog=OFF", "-Dlerc=OFF"}
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         for config, dep in pairs(configdeps) do
             table.insert(configs, "-D" .. config .. "=" .. (package:config(config) and "ON" or "OFF"))
+        end
+        if package:is_plat("cross") then
+            table.insert(configs, "-DCMath_HAVE_LIBM_POW=1")
+            -- table.insert(configs, "-DCMath_LIBRARY=/usr/aarch64-linux-gnu/lib/libm.so")
+            table.insert(configs, "-Dtiff-tools=OFF")
+            table.insert(configs, "-Dtiff-tests=OFF")
+            table.insert(configs, "-Dtiff-contrib=OFF")
+            table.insert(configs, "-Dtiff-docs=OFF")
         end
         io.replace("CMakeLists.txt", "add_subdirectory(man)", "", {plain = true})
         io.replace("CMakeLists.txt", "add_subdirectory(html)", "", {plain = true})
