@@ -19,13 +19,13 @@ package("krb5")
         end
     end)
 
-    on_install("macosx", "linux", "android", function (package)
+    on_install("macosx", "linux", "android", "cross", function (package)
         os.cd("src")
         local configs = {"--disable-dependency-tracking", "--with-system-verto"}
         table.insert(configs, "--with-tls-impl=" .. (package:config("tls") and "openssl" or "no"))
 
         local cflags = {}
-        if is_plat("android") then
+        if is_plat("android") or is_plat("cross") then
             local cross_configs = {
                 "--without-libedit",
                 "--without-readline",
