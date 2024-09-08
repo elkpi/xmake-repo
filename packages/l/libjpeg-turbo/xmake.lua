@@ -29,7 +29,7 @@ package("libjpeg-turbo")
         end
     end)
 
-    on_install("windows", "linux", "macosx", "android", "mingw", function (package)
+    on_install("windows", "linux", "macosx", "android", "mingw", "cross", function (package)
         io.replace("sharedlib/CMakeLists.txt", "string(REGEX REPLACE \"/MT\" \"/MD\"", "#", {plain = true})
         io.replace("sharedlib/CMakeLists.txt", "set(CMAKE_MSVC_RUNTIME_LIBRARY", "#", {plain = true})
         io.replace("sharedlib/CMakeLists.txt", "/NODEFAULTLIB:LIBCMT /NODEFAULTLIB:LIBCMTD", "", {plain = true})
@@ -55,7 +55,7 @@ package("libjpeg-turbo")
         if package:is_plat("windows") and package:config("vs_runtime"):startswith("MD") then
             table.insert(configs, "-DWITH_CRT_DLL=ON")
         end
-        if package:is_plat("mingw") then
+        if package:is_plat("mingw") or package:is_plat("cross") then
             table.insert(configs, "-DCMAKE_SYSTEM_PROCESSOR=" .. package:arch())
         end
         if package:is_plat("windows") and package:is_arch("arm64") then
