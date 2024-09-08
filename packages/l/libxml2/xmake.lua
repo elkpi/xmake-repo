@@ -22,7 +22,7 @@ package("libxml2")
         add_syslinks("m")
     end
 
-    on_load("windows", "macosx", "linux", "iphoneos", "android", "bsd", function (package)
+    on_load("windows", "macosx", "linux", "iphoneos", "android", "bsd", "cross", function (package)
         if package:is_plat("windows") then
             if not package:config("shared") then
                 package:add("defines", "LIBXML_STATIC")
@@ -89,7 +89,7 @@ package("libxml2")
         end
     end)
 
-    on_install("macosx", "linux", "iphoneos", "android@!windows", "bsd", function (package)
+    on_install("macosx", "linux", "iphoneos", "android@!windows", "bsd", "cross", function (package)
         if package:is_plat("iphoneos") then
             io.replace("dict.c", "defined(HAVE_GETENTROPY)", "0", {plain = true}) -- getentropy is private on iOS
         end
