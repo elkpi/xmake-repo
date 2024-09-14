@@ -64,7 +64,9 @@ package("thrift")
             end
             table.insert(configs, "-DWITH_" .. feat .. "=" .. (package:config(dep) and "ON" or "OFF"))
         end
-
+        if package:is_plat("cross") then
+            table.insert(configs, "-DCMAKE_POSITION_INDEPENDENT_CODE=ON")
+        end
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         table.insert(configs, "-DBUILD_COMPILER=" .. (package:config("compiler") and "ON" or "OFF"))
