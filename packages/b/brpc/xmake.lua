@@ -50,7 +50,7 @@ package("brpc")
         end
     end)
 
-    on_install("linux", "macosx", function (package)
+    on_install("linux", "macosx", "cross", function (package)
         local configs = {"-DWITH_DEBUG_SYMBOLS=OFF", "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON", "-DWITH_SNAPPY=ON", "-DBUILD_UNIT_TESTS=OFF", "-DBUILD_BRPC_TOOLS=OFF"}
 
         local cxflags = {}
