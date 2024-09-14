@@ -23,12 +23,15 @@ package("protoc")
     elseif is_host("linux") then
         if is_arch("x86_64") then
             add_urls("https://github.com/protocolbuffers/protobuf/releases/download/v$(version)/protoc-$(version)-linux-x86_64.zip")
+            add_versions("3.19.4", "058d29255a08f8661c8096c92961f3676218704cbd516d3916ec468e139cbd87")
             add_versions("23.4", "0502f286ac9ed860b629a7965a14527b1f2dd131e4283fa23c2d7f184672aa9a")
         elseif is_arch("i386") then
             add_urls("https://github.com/protocolbuffers/protobuf/releases/download/v$(version)/protoc-$(version)-linux-x86_32.zip")
+            add_versions("3.19.4", "06aff080f7c275f6cae3dabd54f7f819cbcc495d79f9d3c2d6c268991551342b")
             add_versions("23.4", "354a4b2bfd7a82dd813107ada8cc83e04f678691f436ae9e55924ced535bd32a")
         elseif is_arch("arm64*") then
             add_urls("https://github.com/protocolbuffers/protobuf/releases/download/v$(version)/protoc-$(version)-linux-aarch_64.zip")
+            add_versions("3.19.4", "95584939e733bdd6ffb8245616b2071f565cd4c28163b6c21c8f936a9ee20861")
             add_versions("23.4", "1c7750b6e038305b5a7fc3d0cda1ebefdf106a4f30a787bf826ed2fc47c3967d")
         end
     else
