@@ -46,7 +46,11 @@ package("protobuf-cpp")
     end
 
     on_load(function (package)
-        package:addenv("PATH", "bin")
+        if package:is_plat("cross") then
+            package:add("deps", "protoc ~" .. package:version():major(), {host = true, system = false})
+        else
+            package:addenv("PATH", "bin")
+        end
         if package:config("zlib") then
             package:add("deps", "zlib")
         end
@@ -72,7 +76,9 @@ package("protobuf-cpp")
         local configs = {"-Dprotobuf_BUILD_TESTS=OFF", "-Dprotobuf_BUILD_PROTOC_BINARIES=ON"}
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
-      
+        if package:is_plat("cross") then
+            table.insert(configs, "-DCMAKE_POSITION_INDEPENDENT_CODE=ON")
+        end
         local packagedeps = {}
         if package:version():ge("22.0") then
             table.insert(packagedeps, "abseil")
@@ -91,6 +97,9 @@ package("protobuf-cpp")
         end
         import("package.tools.cmake").install(package, configs, {buildir = "build", packagedeps = packagedeps})
         os.trycp("build/Release/protoc.exe", package:installdir("bin"))
+        if package:is_plat("cross") then
+            os.tryrm(package:installdir("bin"))
+        end
     end)
 
     on_test(function (package)
