@@ -20,19 +20,30 @@ package("protoc")
             add_urls("https://github.com/protocolbuffers/protobuf/releases/download/v$(version)/protoc-$(version)-osx-x86_32.zip")
             add_versions("3.8.0", "14376f58d19a7579c43ee95d9f87ed383391d695d4968107f02ed226c13448ae")
         end
+    elseif is_host("linux") then
+        if is_arch("x86_64") then
+            add_urls("https://github.com/protocolbuffers/protobuf/releases/download/v$(version)/protoc-$(version)-linux-x86_64.zip")
+            add_versions("23.4", "0502f286ac9ed860b629a7965a14527b1f2dd131e4283fa23c2d7f184672aa9a")
+        elseif is_arch("i386") then
+            add_urls("https://github.com/protocolbuffers/protobuf/releases/download/v$(version)/protoc-$(version)-linux-x86_32.zip")
+            add_versions("23.4", "354a4b2bfd7a82dd813107ada8cc83e04f678691f436ae9e55924ced535bd32a")
+        elseif is_arch("arm64*") then
+            add_urls("https://github.com/protocolbuffers/protobuf/releases/download/v$(version)/protoc-$(version)-linux-aarch_64.zip")
+            add_versions("23.4", "1c7750b6e038305b5a7fc3d0cda1ebefdf106a4f30a787bf826ed2fc47c3967d")
+        end
     else
         add_urls("https://github.com/protocolbuffers/protobuf/releases/download/v$(version)/protobuf-cpp-$(version).zip")
         add_versions("3.8.0", "91ea92a8c37825bd502d96af9054064694899c5c7ecea21b8d11b1b5e7e993b5")
     end
 
-    on_install("@windows", "@msys", "@cygwin", "@macosx", function (package)
+    on_install("@windows", "@msys", "@cygwin", "@macosx", "@linux", function (package)
         os.cp("bin", package:installdir())
         os.cp("include", package:installdir())
     end)
 
-    on_install("@linux", function (package)
-        import("package.tools.autoconf").install(package, {"--enable-shared=no", "--enable-static=no"})
-    end)
+    -- on_install("@linux", function (package)
+    --     import("package.tools.autoconf").install(package, {"--enable-shared=no", "--enable-static=no"})
+    -- end)
 
     on_test(function (package)
         io.writefile("test.proto", [[
