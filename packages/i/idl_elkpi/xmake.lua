@@ -3,7 +3,7 @@ package("idl_elkpi")
     add_deps("protobuf-cpp")
 
     add_urls("git@code.elkpi.com:idl/services.git")
-    add_versions("main", "5e8aa42d4baea78068a62978a2666c6275c9ac10")
+    add_versions("main", "dd939014854dadc3f3ce50bd4fc8c353e0290575")
 
     on_install(function (package)
         local configs = {}
@@ -14,6 +14,5 @@ package("idl_elkpi")
     end)
 
     on_test(function (package)
-        -- TODO check includes and interfaces
-        -- assert(package:has_cfuncs("foo", {includes = "foo.h"})
+        assert(package:has_cxxincludes("base/base.pb.h", {configs = {languages = "c++17"}}))
     end)
