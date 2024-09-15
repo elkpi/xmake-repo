@@ -61,7 +61,7 @@ package("ffmpeg")
         else
             add_frameworks("AudioToolbox")
         end
-    elseif is_plat("linux") then
+    elseif is_plat("linux") or is_plat("cross") then
         add_syslinks("dl", "pthread")
     elseif is_plat("android") then
         add_syslinks("dl", "android")
@@ -72,7 +72,7 @@ package("ffmpeg")
         add_deps("pkg-config")
     end
 
-    on_fetch("mingw", "linux", "macosx", function (package, opt)
+    on_fetch("mingw", "linux", "macosx", "cross", function (package, opt)
         import("lib.detect.find_tool")
         if opt.system then
             local result
@@ -130,7 +130,7 @@ package("ffmpeg")
         end
     end)
 
-    on_install("windows", "mingw@windows,linux,cygwin,msys", "linux", "macosx", "android", "iphoneos", function (package)
+    on_install("windows", "mingw@windows,linux,cygwin,msys", "linux", "macosx", "android", "iphoneos", "cross", function (package)
         local configs = {"--enable-version3",
                          "--disable-doc"}
         if package:config("gpl") then
@@ -212,6 +212,11 @@ package("ffmpeg")
             table.insert(configs, "--enable-asm")
             table.insert(configs, "--enable-jni")
             table.insert(configs, "--enable-mediacodec")
+        elseif package:is_plat("cross") then
+            if package:is_arch("arm.*") then
+                table.insert(configs, "--enable-neon")
+                table.insert(configs, "--enable-asm")
+            end
         else
             raise("unexpected platform")
         end
