@@ -66,6 +66,9 @@ package("fmt")
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))
         table.insert(configs, "-DFMT_UNICODE=" .. (package:config("unicode") and "ON" or "OFF"))
+        if package:is_plat("cross") then
+            table.insert(configs, "-DCMAKE_POSITION_INDEPENDENT_CODE=ON")
+        end
         import("package.tools.cmake").install(package, configs)
     end)
 
