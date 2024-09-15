@@ -12,10 +12,10 @@ package("libedit")
 
     on_install(function (package)
         local configs = {}
-        -- local cflags = {}
-        -- local ldflags = {}
-        -- local cxxflags = {}
-        -- local cppflags = {}
+        local cflags = {}
+        local ldflags = {}
+        local cxxflags = {}
+        local cppflags = {}
 
         table.insert(configs, "--enable-shared=" .. (package:config("shared") and "yes" or "no"))
         table.insert(configs, "--enable-static=" .. (package:config("shared") and "no" or "yes"))
@@ -25,27 +25,28 @@ package("libedit")
         if package:config("pic") ~= false then
             table.insert(configs, "--with-pic")
         end
-        
-        -- for _, dep in ipairs(package:orderdeps()) do
-        --     local fetchinfo = dep:fetch()
-        --     if fetchinfo then
-        --         for _, includedir in ipairs(fetchinfo.includedirs or fetchinfo.sysincludedirs) do
-        --             table.insert(cflags, "-I" .. includedir)
-        --             table.insert(cxxflags, "-I" .. includedir)
-        --             table.insert(cppflags, "-I" .. includedir)
-        --         end
-        --         for _, linkdir in ipairs(fetchinfo.linkdirs) do
-        --             table.insert(ldflags, "-L" .. linkdir)
-        --         end
-        --         for _, link in ipairs(fetchinfo.links) do
-        --             table.insert(ldflags, "-l" .. link)
-        --         end
-        --     end
-        -- end
-        -- local envs = import("package.tools.autoconf").buildenvs(package)
-        -- os.vrunv("autoreconf", {"-fi"}, {envs = envs})
-        -- import("package.tools.autoconf").install(package, configs, {cflags = cflags, ldflags = ldflags, cxxflags = cxxflags, cppflags = cppflags})
-        import("package.tools.autoconf").install(package, configs)
+
+        if package:is_plat("cross") then
+            for _, dep in ipairs(package:orderdeps()) do
+                local fetchinfo = dep:fetch()
+                if fetchinfo then
+                    for _, includedir in ipairs(fetchinfo.includedirs or fetchinfo.sysincludedirs) do
+                        table.insert(cflags, "-I" .. includedir)
+                        table.insert(cxxflags, "-I" .. includedir)
+                        table.insert(cppflags, "-I" .. includedir)
+                    end
+                    for _, linkdir in ipairs(fetchinfo.linkdirs) do
+                        table.insert(ldflags, "-L" .. linkdir)
+                    end
+                    for _, link in ipairs(fetchinfo.links) do
+                        table.insert(ldflags, "-l" .. link)
+                    end
+                end
+            end
+        end
+        local envs = import("package.tools.autoconf").buildenvs(package)
+        os.vrunv("autoreconf", {"-fi"}, {envs = envs})
+        import("package.tools.autoconf").install(package, configs, {cflags = cflags, ldflags = ldflags, cxxflags = cxxflags, cppflags = cppflags})
     end)
 
     on_test(function (package)
