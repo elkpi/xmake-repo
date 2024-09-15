@@ -399,6 +399,11 @@ package("boost")
         if package:is_plat("linux") then
             table.insert(argv, "pch=off")
         end
+        if package:is_plat("cross") then
+            if package:is_arch("arm.*") then
+                table.insert(argv, "abi=aapcs")
+            end
+        end
         local ok = os.execv("./b2", argv, {envs = runenvs, try = true, stdout = "boost-log.txt"})
         if ok ~= 0 then
             raise("boost build failed, please check log in " .. path.join(os.curdir(), "boost-log.txt"))
