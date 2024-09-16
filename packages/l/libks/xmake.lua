@@ -37,17 +37,13 @@ package("libks")
             end
         end
 
-   --[[      local envs = cmake.buildenvs(package)
-        local PKG_CONFIG_PATH = {}
-        local libuuid = package:dep("libuuid"):fetch()
-        if libuuid then
-            for _, dir in ipairs(libuuid.linkdirs) do
-                table.insert(PKG_CONFIG_PATH, path.join(dir, "pkgconfig"))
-                table.insert(PKG_CONFIG_PATH, path.join(dir, "share", "pkgconfig"))
-            end
+        if package:is_plat("cross") then
+            import("core.tool.toolchain")
+            local cross = toolchain.load("cross")
+            local dir = path.join(cross:sdkdir(), cross:cross():sub(1, string.len(cross:cross()) - 1))
+            table.insert(configs, "-DLIBM_INCLUDE_DIRS=" .. path.join(dir, "include"))
+            table.insert(configs, "-DLIBM_LIBRARIES="..  path.join(dir, "lib", "libm.a"))
         end
-        envs.PKG_CONFIG_PATH = path.joinenv(table.join(PKG_CONFIG_PATH, envs.PKG_CONFIG_PATH)) ]]
-
         table.insert(configs, "-DCMAKE_C_FLAGS=" .. table.concat(cflags, " "))
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
         table.insert(configs, "-DKS_STATIC=" .. (package:config("shared") and "OFF" or "ON"))
