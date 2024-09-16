@@ -15,6 +15,9 @@ package("libuuid")
             add_rules("mode.debug", "mode.release")
             target("uuid")
                 set_kind("$(kind)")
+            ]]
+                .. "set_version(\"" .. package:version() .. "\")" ..
+            [[
                 add_files("*.c|test_*.c")
                 add_headerfiles("*.h", {prefixdir = "uuid"})
                 add_rules("utils.install.pkgconfig_importfiles", {filename = "uuid.pc"})
