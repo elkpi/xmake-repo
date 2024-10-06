@@ -31,7 +31,7 @@ package("libffi")
         end
     end)
 
-    on_install("windows", "iphoneos", "cross", function (package)
+    on_install("windows", "iphoneos", function (package)
         io.gsub("fficonfig.h.in", "# *undef (.-)\n", "${define %1}\n")
         os.cp(path.join(os.scriptdir(), "port", "xmake.lua"), "xmake.lua")
         import("package.tools.xmake").install(package, {
@@ -39,7 +39,7 @@ package("libffi")
         })
     end)
 
-    on_install("macosx", "linux", "bsd", "mingw", function (package)
+    on_install("macosx", "linux", "bsd", "mingw", "cross", function (package)
         -- https://github.com/libffi/libffi/issues/127
         local configs = {"--disable-silent-rules", "--disable-dependency-tracking", "--disable-multi-os-directory"}
         table.insert(configs, "--enable-shared=" .. (package:config("shared") and "yes" or "no"))
