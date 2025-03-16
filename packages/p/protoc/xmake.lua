@@ -52,6 +52,9 @@ package("protoc")
     -- end)
 
     on_test(function (package)
+        if package:is_cross() then
+            return
+        end
         io.writefile("test.proto", [[
             syntax = "proto3";
             package test;
