@@ -1,44 +1,46 @@
 -- imports
 import("core.base.option")
 import("core.platform.platform")
-import("core.package.package", {alias = "core_package"})
-import("packages", {alias = "get_packages"})
+import("core.package.package", { alias = "core_package" })
+import("packages", { alias = "get_packages" })
 
 -- the options
 local options =
 {
-    {'v', "verbose",        "k",  nil, "Enable verbose information."                }
-,   {'D', "diagnosis",      "k",  nil, "Enable diagnosis information."              }
-,   {nil, "shallow",        "k",  nil, "Only install the root packages."            }
-,   {'k', "kind",           "kv", nil, "Enable static/shared library."              }
-,   {'p', "plat",           "kv", nil, "Set the given platform."                    }
-,   {'a', "arch",           "kv", nil, "Set the given architecture."                }
-,   {'m', "mode",           "kv", nil, "Set the given mode."                        }
-,   {'j', "jobs",           "kv", nil, "Set the build jobs."                        }
-,   {'f', "configs",        "kv", nil, "Set the configs."                           }
-,   {'d', "debugdir",       "kv", nil, "Set the debug source directory."            }
-,   {nil, "fetch",          "k",  nil, "Fetch package only."                        }
-,   {nil, "precompiled",    "k",  nil, "Attemp to install the precompiled package." }
-,   {nil, "remote",         "k",  nil, "Test package on the remote server."         }
-,   {nil, "linkjobs",       "kv", nil, "Set the link jobs."                         }
-,   {nil, "cflags",         "kv", nil, "Set the cflags."                            }
-,   {nil, "cxxflags",       "kv", nil, "Set the cxxflags."                          }
-,   {nil, "ldflags",        "kv", nil, "Set the ldflags."                           }
-,   {nil, "ndk",            "kv", nil, "Set the Android NDK directory."             }
-,   {nil, "ndk_sdkver",     "kv", nil, "Set the Android NDK platform sdk version."  }
-,   {nil, "sdk",            "kv", nil, "Set the SDK directory of cross toolchain."  }
-,   {nil, "vs",             "kv", nil, "Set the VS Compiler version."               }
-,   {nil, "vs_sdkver",      "kv", nil, "Set the Windows SDK version."               }
-,   {nil, "vs_toolset",     "kv", nil, "Set the Windows Toolset version."           }
-,   {nil, "vs_runtime",     "kv", nil, "Set the VS Runtime library (deprecated)."   }
-,   {nil, "runtimes",       "kv", nil, "Set the Runtime libraries."                 }
-,   {nil, "xcode_sdkver",   "kv", nil, "The SDK Version for Xcode"                  }
-,   {nil, "target_minver",  "kv", nil, "The Target Minimal Version"                 }
-,   {nil, "appledev",       "kv", nil, "The Apple Device Type"                      }
-,   {nil, "mingw",          "kv", nil, "Set the MingW directory."                   }
-,   {nil, "toolchain",      "kv", nil, "Set the toolchain name."                    }
-,   {nil, "cross",          "kv", nil, "Set cross" }
-,   {nil, "packages",       "vs", nil, "The package list."                          }
+    { 'v', "verbose", "k", nil, "Enable verbose information." }
+    , { 'D', "diagnosis", "k", nil, "Enable diagnosis information." }
+, { nil, "shallow", "k", nil, "Only install the root packages." }
+, { 'k', "kind", "kv", nil, "Enable static/shared library." }
+, { 'p', "plat", "kv", nil, "Set the given platform." }
+, { 'a', "arch", "kv", nil, "Set the given architecture." }
+, { 'm', "mode", "kv", nil, "Set the given mode." }
+, { 'j', "jobs", "kv", nil, "Set the build jobs." }
+, { 'f', "configs", "kv", nil, "Set the configs." }
+, { 'd', "debugdir", "kv", nil, "Set the debug source directory." }
+, { nil, "policies", "kv", nil, "Set the policies." }
+, { nil, "fetch", "k", nil, "Fetch package only." }
+, { nil, "precompiled", "k", nil, "Attemp to install the precompiled package." }
+, { nil, "remote", "k", nil, "Test package on the remote server." }
+, { nil, "linkjobs", "kv", nil, "Set the link jobs." }
+, { nil, "cflags", "kv", nil, "Set the cflags." }
+, { nil, "cxxflags", "kv", nil, "Set the cxxflags." }
+, { nil, "ldflags", "kv", nil, "Set the ldflags." }
+, { nil, "ndk", "kv", nil, "Set the Android NDK directory." }
+, { nil, "ndk_sdkver", "kv", nil, "Set the Android NDK platform sdk version." }
+, { nil, "sdk", "kv", nil, "Set the SDK directory of cross toolchain." }
+, { nil, "vs", "kv", nil, "Set the VS Compiler version." }
+, { nil, "vs_sdkver", "kv", nil, "Set the Windows SDK version." }
+, { nil, "vs_toolset", "kv", nil, "Set the Windows Toolset version." }
+, { nil, "vs_runtime", "kv", nil, "Set the VS Runtime library (deprecated)." }
+, { nil, "runtimes", "kv", nil, "Set the Runtime libraries." }
+, { nil, "xcode_sdkver", "kv", nil, "The SDK Version for Xcode" }
+, { nil, "target_minver", "kv", nil, "The Target Minimal Version" }
+, { nil, "appledev", "kv", nil, "The Apple Device Type" }
+, { nil, "mingw", "kv", nil, "Set the MingW directory." }
+, { nil, "toolchain", "kv", nil, "Set the toolchain name." }
+, { nil, "cross", "kv", nil, "Set cross" }
+, { nil, "toolchain_host", "kv", nil, "Set the host toolchain name." }
+, { nil, "packages", "vs", nil, "The package list." }
 }
 
 -- check package is supported?
@@ -52,9 +54,9 @@ function _check_package_is_supported()
     end
 end
 
--- require packages
-function _require_packages(argv, packages)
-    local config_argv = {"f", "-c"}
+-- config packages
+function _config_packages(argv, packages)
+    local config_argv = { "f", "-c" }
     if argv.verbose then
         table.insert(config_argv, "-v")
     end
@@ -69,6 +71,9 @@ function _require_packages(argv, packages)
     end
     if argv.mode then
         table.insert(config_argv, "--mode=" .. argv.mode)
+    end
+    if argv.policies then
+        table.insert(config_argv, "--policies=" .. argv.policies)
     end
     if argv.ndk then
         table.insert(config_argv, "--ndk=" .. argv.ndk)
@@ -114,6 +119,9 @@ function _require_packages(argv, packages)
     if argv.cross then
         table.insert(config_argv, "--cross=" .. argv.cross)
     end
+    if argv.toolchain_host then
+        table.insert(config_argv, "--toolchain_host=" .. argv.toolchain_host)
+    end
     if argv.cflags then
         table.insert(config_argv, "--cflags=" .. argv.cflags)
     end
@@ -123,9 +131,59 @@ function _require_packages(argv, packages)
     if argv.ldflags then
         table.insert(config_argv, "--ldflags=" .. argv.ldflags)
     end
-    os.vexecv("xmake", config_argv)
-    local require_argv = {"require", "-f", "-y"}
-    local check_argv = {"require", "-f", "-y", "--check"}
+    os.vexecv(os.programfile(), config_argv)
+end
+
+-- get extra string
+function _get_extra_str(argv)
+    local extra = {}
+    if argv.mode == "debug" then
+        extra.debug = true
+    end
+    -- Some packages set shared=true as default, so we need to force set
+    -- shared=false to test static build.
+    extra.configs = extra.configs or {}
+    extra.configs.shared = argv.kind == "shared"
+    local configs = argv.configs
+    if configs then
+        extra.system                = false
+        extra.configs               = extra.configs or {}
+        local extra_configs, errors = ("{" .. configs .. "}"):deserialize()
+        if extra_configs then
+            table.join2(extra.configs, extra_configs)
+        else
+            raise(errors)
+        end
+    end
+    return string.serialize(extra, { indent = false, strip = true })
+end
+
+-- load packages
+function _load_packages(argv, packages)
+    _config_packages(argv, packages)
+    local info_argv = { "require", "-f", "-y", "--info" }
+    if argv.verbose then
+        table.insert(info_argv, "-v")
+    end
+    if argv.diagnosis then
+        table.insert(info_argv, "-D")
+    end
+    local extra_str = _get_extra_str(argv)
+    table.insert(info_argv, "--extra=" .. extra_str)
+
+    -- call `xrepo info` to test on_load
+    if #packages > 0 then
+        print("testing to load packages ...")
+        print("  > if it causes errors, please remove assert/raise() to on_check.")
+        os.vexecv(os.programfile(), table.join(info_argv, packages))
+    end
+end
+
+-- require packages
+function _require_packages(argv, packages)
+    _config_packages(argv, packages)
+    local require_argv = { "require", "-f", "-y" }
+    local check_argv = { "require", "-f", "-y", "--check" }
     if not argv.precompiled then
         table.insert(require_argv, "--build")
     end
@@ -154,33 +212,16 @@ function _require_packages(argv, packages)
     if argv.fetch then
         table.insert(require_argv, "--fetch")
     end
-    local extra = {}
-    if argv.mode == "debug" then
-        extra.debug = true
-    end
-    -- Some packages set shared=true as default, so we need to force set
-    -- shared=false to test static build.
-    extra.configs = extra.configs or {}
-    extra.configs.shared = argv.kind == "shared"
-    local configs = argv.configs
-    if configs then
-        extra.system  = false
-        extra.configs = extra.configs or {}
-        local extra_configs, errors = ("{" .. configs .. "}"):deserialize()
-        if extra_configs then
-            table.join2(extra.configs, extra_configs)
-        else
-            raise(errors)
-        end
-    end
-    local extra_str = string.serialize(extra, {indent = false, strip = true})
+    local extra_str = _get_extra_str(argv)
     table.insert(require_argv, "--extra=" .. extra_str)
     table.insert(check_argv, "--extra=" .. extra_str)
 
+    -- test on_check
     local install_packages = {}
     if _check_package_is_supported() then
+        print("testing to check packages ...")
         for _, package in ipairs(packages) do
-            local ok = os.vexecv("xmake", table.join(check_argv, package), {try = true})
+            local ok = os.vexecv(os.programfile(), table.join(check_argv, package), { try = true })
             if ok == 0 then
                 table.insert(install_packages, package)
             end
@@ -188,8 +229,11 @@ function _require_packages(argv, packages)
     else
         install_packages = packages
     end
+
+    -- test installation
     if #install_packages > 0 then
-        os.vexecv("xmake", table.join(require_argv, install_packages))
+        print("testing to install packages ...")
+        os.vexecv(os.programfile(), table.join(require_argv, install_packages))
     else
         print("no testable packages on %s or you're using lower version xmake!", argv.plat or os.subhost())
     end
@@ -211,6 +255,7 @@ function _package_is_supported(argv, packagename)
                     arch = os.subarch()
                 end
                 for _, package_arch in ipairs(package.archs) do
+                    print(package_arch, package.archs)
                     if arch == package_arch then
                         return true
                     end
@@ -239,9 +284,6 @@ function get_modified_packages()
             if #packages > 0 and version then
                 local lastpackage = packages[#packages]
                 local splitinfo = lastpackage:split("%s+")
-                if #splitinfo == 1 then
-                    table.remove(packages)
-                end
                 table.insert(packages, splitinfo[1] .. " " .. version)
             end
         end
@@ -251,9 +293,8 @@ end
 
 -- the main entry
 function main(...)
-
     -- parse arguments
-    local argv = option.parse({...}, options, "Test all the given or changed packages.")
+    local argv = option.parse({ ... }, options, "Test all the given or changed packages.")
 
     -- get packages
     local packages = argv.packages or {}
@@ -262,18 +303,6 @@ function main(...)
     end
     if #packages == 0 then
         table.insert(packages, "tbox dev")
-    end
-
-    -- remove unsupported packages
-    for idx, package in irpairs(packages) do
-        assert(package == package:lower(), "package(%s) must be lower case!", package)
-        if not _package_is_supported(argv, package) then
-            table.remove(packages, idx)
-        end
-    end
-    if #packages == 0 then
-        print("no testable packages on %s!", argv.plat or os.subhost())
-        return
     end
 
     -- prepare test project
@@ -285,7 +314,7 @@ function main(...)
         os.tryrm(workdir)
         os.mkdir(workdir)
         os.cd(workdir)
-        os.exec("xmake create test")
+        os.execv(os.programfile(), { "create", "test" })
     else
         os.cd(workdir)
     end
@@ -293,20 +322,38 @@ function main(...)
     print(os.curdir())
     -- do action for remote?
     if os.isdir("xmake-repo") then
-        os.exec("xmake service --disconnect")
+        os.execv(os.programfile(), { "service", "--disconnect" })
     end
     if argv.remote then
         os.tryrm("xmake-repo")
         os.cp(path.join(repodir, "packages"), "xmake-repo/packages")
-        os.exec("xmake service --connect")
+        os.execv(os.programfile(), { "service", "--connect" })
         repodir = "xmake-repo"
     end
-    os.exec("xmake repo --add local-repo %s", repodir)
-    os.exec("xmake repo -l")
+    os.execv(os.programfile(), { "repo", "--add", "local-repo", repodir })
+    os.execv(os.programfile(), { "repo", "-l" })
+
+    local packages_original = table.clone(packages)
+
+    -- load packages
+    _load_packages(argv, packages_original)
+
+    local old_dir = os.cd(repodir)
+    -- remove unsupported packages
+    for idx, package in irpairs(packages) do
+        assert(package == package:lower(), "package(%s) must be lower case!", package)
+        if not _package_is_supported(argv, package) then
+            table.remove(packages, idx)
+        end
+    end
+    os.cd(old_dir)
+
+    -- no unsupported packages
+    if #packages == 0 then
+        print("no testable packages on %s!", argv.plat or os.subhost())
+        return
+    end
 
     -- require packages
     _require_packages(argv, packages)
-    --[[for _, package in ipairs(packages) do
-        _require_packages(argv, package)
-    end]]
 end

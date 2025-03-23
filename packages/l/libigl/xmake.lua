@@ -19,6 +19,7 @@ package("libigl")
     add_configs("embree", {description = "Use embree library.", default = false, type = "boolean"})
 
     if is_plat("windows") then
+        add_defines("NOMINMAX")
         add_syslinks("comdlg32")
     elseif is_plat("linux") then
         add_syslinks("pthread")
@@ -26,7 +27,9 @@ package("libigl")
 
     add_deps("cmake", "eigen")
     on_load("macosx", "linux", "windows", "mingw", function (package)
-        if not package:config("header_only") then
+        if package:config("header_only") then
+            package:set("kind", "library", {headeronly = true})
+        else
             raise("Non-header-only version is not supported yet!")
         end
         if package:config("cgal") then

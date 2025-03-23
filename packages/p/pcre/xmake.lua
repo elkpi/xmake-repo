@@ -1,7 +1,7 @@
 package("pcre")
-
     set_homepage("https://www.pcre.org/")
     set_description("A Perl Compatible Regular Expressions Library")
+    set_license("BSD-3-Clause")
 
     set_urls("https://github.com/xmake-mirror/pcre/releases/download/$(version)/pcre-$(version).tar.bz2", {alias = "xmake"})
     set_urls("https://sourceforge.net/projects/pcre/files/pcre/$(version)/pcre-$(version).tar.gz", {alias = "sf"})
@@ -27,6 +27,7 @@ package("pcre")
 
     on_install("windows", function (package)
         local configs = {"-DPCRE_BUILD_TESTS=OFF"}
+        table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         table.insert(configs, "-DPCRE_SUPPORT_JIT=" .. (package:config("jit") and "ON" or "OFF"))
         local bitwidth = package:config("bitwidth") or "8"
