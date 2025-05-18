@@ -7,6 +7,8 @@ package("ptlib")
 
     add_versions("v2.10.9-6", "22653cbb7d94ceafea35a9eb0f8f96afe8f0ffc8cd4cb08ce00d6c62d5e11bb8")
 
+    add_patches("v2.10.9-6", path.join(os.scriptdir(), "patches", "v2.10.9-6", "000-Makefile.in.patch"), "0d6e86ce708a28d5e708fac1516df039e897f4f369c6dd13568c67d8453afed0")
+
     add_deps("autoconf", "automake", "libtool")
     add_deps("openssl", "expat")
 

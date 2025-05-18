@@ -1,0 +1,12 @@
+diff -u a/Makefile.in b/Makefile.in
+--- a/Makefile.in	2025-05-18 21:53:52.960993592 +0800
++++ b/Makefile.in	2025-05-18 21:54:34.800993589 +0800
+@@ -159,6 +159,7 @@
+ 	done)
+ 	$(INSTALL) -m 755 make/ptlib-config $(DESTDIR)$(PREFIX)/share/ptlib/make/
+ 	(cd $(DESTDIR)$(PREFIX)/bin; rm -f ptlib-config ; ln -snf ../share/ptlib/make/ptlib-config ptlib-config)
++	(cd $(DESTDIR)$(PREFIX)/; ln -snf share/ptlib/make)
+
+ 	mkdir -p $(DESTDIR)$(LIBDIR)/pkgconfig
+ 	chmod 755 $(DESTDIR)$(LIBDIR)/pkgconfig
+	
