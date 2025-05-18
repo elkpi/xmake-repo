@@ -10,6 +10,8 @@ package("h323plus")
     add_deps("autoconf", "automake", "libtool")
     add_deps("ptlib", "speex")
 
+    add_includedirs("include", "include/openh323")
+
     on_install("linux", "macosx", "android", "iphoneos", "bsd", "cross", "mingw", function (package)
         local configs = {}
         table.insert(configs, "--enable-shared=" .. (package:config("shared") and "yes" or "no"))
