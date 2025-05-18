@@ -1,9 +1,11 @@
 package("ptlib")
     set_homepage("https:/www.gnugk.org")
 
-    add_urls("https://github.com/willamowius/ptlib/archive/refs/tags/$(version).tar.gz")
+    add_urls("https://github.com/willamowius/ptlib/archive/refs/tags/$(version).tar.gz", {
+        version = function (version) return format("%s", version:gsub("%.", "_"):gsub("%-", "_"), version) end
+    })
 
-    add_versions("v2_10_9_6", "22653cbb7d94ceafea35a9eb0f8f96afe8f0ffc8cd4cb08ce00d6c62d5e11bb8")
+    add_versions("v2.10.9-6", "22653cbb7d94ceafea35a9eb0f8f96afe8f0ffc8cd4cb08ce00d6c62d5e11bb8")
 
     add_deps("autoconf", "automake", "libtool")
     add_deps("openssl", "expat")
