@@ -43,5 +43,5 @@ package("h323plus")
     end)
 
     on_test(function (package)
-        -- assert(package:has_cxxincludes("ptlib.h"))
+        -- assert(package:has_cxxincludes("openh323/h323.h"))
     end)
