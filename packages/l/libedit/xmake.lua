@@ -29,7 +29,7 @@ package("libedit")
         end
     end)
 
-    on_install("linux", "macosx", "bsd", "msys", function (package)
+    on_install("linux", "macosx", "bsd", "msys", "cross", function (package)
         local configs = {"--disable-examples"}
         table.insert(configs, "--enable-shared=" .. (package:config("shared") and "yes" or "no"))
         table.insert(configs, "--enable-static=" .. (package:config("shared") and "no" or "yes"))
