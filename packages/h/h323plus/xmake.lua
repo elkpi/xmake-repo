@@ -8,7 +8,6 @@ package("h323plus")
     add_versions("v1.28.0", "cde10139eb3e5c725185ecec57da9d8fc98f4bdddec7786e1cace7de4ce1ac06")
 
     add_deps("autoconf", "automake", "libtool")
-    -- add_deps("ptlib", "expat")
     add_deps("ptlib", "speex")
 
     on_install("linux", "macosx", "android", "iphoneos", "bsd", "cross", "mingw", function (package)
