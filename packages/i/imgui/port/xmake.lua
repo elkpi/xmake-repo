@@ -14,8 +14,10 @@ option("sdl2",             {showmenu = true,  default = false})
 option("sdl2_renderer",    {showmenu = true,  default = false})
 option("sdl3",             {showmenu = true,  default = false})
 option("sdl3_renderer",    {showmenu = true,  default = false})
+option("sdl3_gpu",         {showmenu = true,  default = false})
 option("vulkan",           {showmenu = true,  default = false})
 option("win32",            {showmenu = true,  default = false})
+option("osx",              {showmenu = true,  default = false})
 option("wgpu",             {showmenu = true,  default = false})
 option("freetype",         {showmenu = true,  default = false})
 option("user_config",      {showmenu = true,  default = nil, type = "string"})
@@ -34,12 +36,12 @@ if has_config("sdl2_renderer") then
 elseif has_config("sdl2") then
     add_requires("libsdl2")
 end
-if has_config("sdl3") or has_config("sdl3_renderer") then
+if has_config("sdl3") or has_config("sdl3_renderer") or has_config("sdl3_gpu") then
     add_requires("libsdl3")
 end
 
 if has_config("vulkan") then
-    add_requires("vulkansdk")
+    add_requires("vulkan-headers")
 end
 
 if has_config("wgpu") then
@@ -136,15 +138,27 @@ target("imgui")
         add_packages("libsdl3")
     end
 
+    if has_config("sdl3_gpu") then
+        add_files("backends/imgui_impl_sdlgpu3.cpp")
+        add_headerfiles("backends/imgui_impl_sdlgpu3.h","backends/imgui_impl_sdlgpu3_shaders.h")
+        add_packages("libsdl3")
+    end
+
     if has_config("vulkan") then
         add_files("backends/imgui_impl_vulkan.cpp")
         add_headerfiles("(backends/imgui_impl_vulkan.h)")
-        add_packages("vulkansdk")
+        add_packages("vulkan-headers")
     end
 
     if has_config("win32") then
         add_files("backends/imgui_impl_win32.cpp")
         add_headerfiles("(backends/imgui_impl_win32.h)")
+    end
+
+    if has_config("osx") then
+        add_frameworks("Cocoa", "Carbon", "GameController")
+        add_files("backends/imgui_impl_osx.mm")
+        add_headerfiles("(backends/imgui_impl_osx.h)")
     end
 
     if has_config("wgpu") then

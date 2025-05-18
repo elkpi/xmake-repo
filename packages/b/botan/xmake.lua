@@ -6,6 +6,7 @@ package("botan")
     set_urls("https://github.com/randombit/botan/archive/refs/tags/$(version).tar.gz",
              "https://github.com/randombit/botan.git")
 
+    add_versions("3.8.1", "8eb79a49c1a3f7e5e7563c13752a37557de935cdac48d9221ea4b580158e8965")
     add_versions("3.7.1", "8d2a072c7cdca6cadd16f89bb966fce1b3ec77cb4614bf1d87dec1337a3d2330")
     add_versions("3.7.0", "ebd1b965ed2afa12dfaf47650187142cbe870b99528185c88ca7c0ac19307c6c")
     add_versions("3.6.1", "a6c4e8dcb6c7f4b9b67e2c8b43069d65b548970ca17847e3b1e031d3ffdd874a")
@@ -20,6 +21,7 @@ package("botan")
     add_configs("python", {description = "Enable python module", default = false, type = "boolean"})
     add_configs("endian", {description = [[The  parameter should be either “little” or “big”. If not used then if the target architecture has a default, that is used. Otherwise left unspecified, which causes less optimal codepaths to be used but will work on either little or big endian.]], default = nil, type = "string", values = {"little", "big"}})
     add_configs("modules", {description = [[Enable modules, example: {configs = {modules = {"zlib", "lzma"}}}]], type = "table"})
+    add_configs("minimal", {description = "Build a minimal version", default = true, type = "boolean"})
     if is_plat("wasm") then
         add_configs("shared", {description = "Build shared library.", default = false, type = "boolean", readonly = true})
     end
@@ -90,7 +92,6 @@ package("botan")
             "--prefix=" .. package:installdir(),
             "--build-tool=ninja",
             "--without-documentation",
-            "--minimized-build",
         }
 
         local cc
@@ -183,6 +184,10 @@ package("botan")
 
         if package:config("endian") then
             table.insert(configs, "--with-endian=" .. package:config("endian"))
+        end
+
+        if package:config("minimal") then
+            table.insert(configs, "--minimized-build")
         end
 
         local cxflags = {}

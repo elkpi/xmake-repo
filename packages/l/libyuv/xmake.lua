@@ -20,19 +20,27 @@ package("libyuv")
     on_load("windows", "linux", "macosx", function (package)
     end)
 
-    on_install("windows", "linux", "macosx", "android", "cross", "bsd", "mingw", function (package)
-        local configs = {"-DTEST=OFF", "-DUNIT_TEST=OFF"}
-        table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
-        table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
-        io.replace("CMakeLists.txt", "INSTALL ( PROGRAMS ${CMAKE_BINARY_DIR}/yuvconvert			DESTINATION bin )", "", {plain = true})
-        import("package.tools.cmake").install(package, configs)
-        
-        if package:is_plat("macosx", "linux", "android") then
-            if package:config("shared") then 
-                os.tryrm(package:installdir("lib", "*.a"))
-            else 
-                os.tryrm(package:installdir("lib", "*.so"))
+    add_deps("cmake")
+
+    if is_plat("linux", "bsd") then
+        add_syslinks("m")
+    end
+
+    if on_check then
+        on_check("android", function (package)
+            local ndk = package:toolchain("ndk"):config("ndkver")
+            assert(ndk and tonumber(ndk) > 22, "package(libyuv): need ndk version > 22")
+        end)
+        on_check("linux", function (package)
+            if package:is_arch("arm64") then
+                raise("package(libuv) unsupport compile flags -march=armv9-a+sme")
             end
+        end)
+    end
+
+    on_load(function (package)
+        if package:config("jpeg") then
+            package:add("deps", "libjpeg")
         end
 
         if package:config("shared") then
