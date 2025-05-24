@@ -57,7 +57,15 @@ package("brpc")
     end)
 
     on_install("linux", "macosx", "cross", function (package)
-        local configs = {"-DWITH_DEBUG_SYMBOLS=OFF", "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON", "-DWITH_SNAPPY=ON", "-DBUILD_UNIT_TESTS=OFF", "-DBUILD_BRPC_TOOLS=OFF"}
+        local configs = {"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON", "-DWITH_SNAPPY=ON", "-DBUILD_UNIT_TESTS=OFF", "-DBUILD_BRPC_TOOLS=OFF"}
+
+        if package:is_debug() then
+            table.insert(configs, "-DCMAKE_BUILD_TYPE=Debug")
+            table.insert(configs, "-DWITH_DEBUG_SYMBOLS=ON")
+        else
+            table.insert(configs, "-DCMAKE_BUILD_TYPE=Release")
+            table.insert(configs, "-DWITH_DEBUG_SYMBOLS=OFF")
+        end
 
         local cxflags = {}
         -- local cflags = {}
