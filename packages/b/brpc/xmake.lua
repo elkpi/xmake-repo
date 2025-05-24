@@ -27,6 +27,7 @@ package("brpc")
     -- https://github.com/apache/brpc/issues/577
     add_configs("with_glog", {description = "With glog", default = true, type = "boolean"})
     add_configs("with_thrift", {description = "With thrift", default = true, type = "boolean"})
+    add_configs("pthread_mutex_hook", {description = "pthread mutex hook", default = false, type = "boolean"})
 
     -- we enable zlib in protobuf-cpp, because brpc need google/protobuf/io/gzip_stream.h
     add_deps("leveldb", "gflags", "openssl", "libzip", "snappy", "zlib")
@@ -72,6 +73,9 @@ package("brpc")
         end
         if package:config("with_thrift") then
             table.insert(configs, "-DWITH_THRIFT=ON")
+        end
+        if not package:config("pthread_mutex_hook") then
+            table.insert(cxflags, "-DNO_PTHREAD_MUTEX_HOOK")
         end
         if package:config("shared") then
             table.insert(configs, "-DBUILD_SHARED_LIBS=ON")
