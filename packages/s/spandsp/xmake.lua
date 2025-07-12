@@ -7,7 +7,7 @@ package("spandsp")
     add_versions("2022.01.27", "e59ca8fb8b1591e626e6a12fdc60a2ebe83435ed")
 
     add_deps("autoconf", "automake", "libtool")
-    add_deps("libjpeg-turbo", "libtiff")
+    add_deps("libjpeg-turbo", "libtiff", "zlib", "libffi")
 
     on_install(function (package)
         local configs = {}
