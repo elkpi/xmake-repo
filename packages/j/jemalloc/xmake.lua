@@ -20,11 +20,7 @@ fragmentation avoidance and scalable concurrency support]])
         if package:gitref() then
             package:add("deps", "automake", "autoconf")
         end
-        if package:is_plat("linux") and package:config("pic") ~= false then
-            package:add("links", "jemalloc_pic")
-        else
-            package:add("links", "jemalloc")
-        end
+        package:add("links", "jemalloc")
     end)
 
     on_install("linux", "macosx", "mingw@macosx", "cross", function(package)
