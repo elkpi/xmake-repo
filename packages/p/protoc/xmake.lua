@@ -22,6 +22,7 @@ package("protoc")
         end
     elseif is_host("linux") then
         add_urls("https://github.com/protocolbuffers/protobuf/releases/download/v$(version)/protoc-$(version)-linux-x86_64.zip")
+        add_versions("30.2", "327e9397c6fb3ea2a542513a3221334c6f76f7aa524a7d2561142b67b312a01f")
         add_versions("3.19.4", "058d29255a08f8661c8096c92961f3676218704cbd516d3916ec468e139cbd87")
         add_versions("23.4", "0502f286ac9ed860b629a7965a14527b1f2dd131e4283fa23c2d7f184672aa9a")
         add_versions("27.2", "4a95e0ea2e51720af86a92f48d4997c8756923a9d0c58fd8a850657cd7479caf")
