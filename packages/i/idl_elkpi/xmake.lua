@@ -1,6 +1,6 @@
 package("idl_elkpi")
     set_description("The idl_elkpi package")
-    add_deps("protobuf-cpp", "protoc")
+    add_deps("protobuf-cpp")
 
     add_urls("git@code.elkpi.com:idl/services.git")
     add_versions("main", "dd939014854dadc3f3ce50bd4fc8c353e0290575")
