@@ -23,11 +23,10 @@ package("leveldb")
             package:add("defines", "LEVELDB_SHARED_LIBRARY")
         end
 
+        local configs = {"-DLEVELDB_BUILD_TESTS=OFF", "-DLEVELDB_BUILD_BENCHMARKS=OFF"}
         if package:is_plat("cross") then
             table.insert(configs, "-DCMAKE_POSITION_INDEPENDENT_CODE=ON")
         end
-
-        local configs = {"-DLEVELDB_BUILD_TESTS=OFF", "-DLEVELDB_BUILD_BENCHMARKS=OFF"}
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         import("package.tools.cmake").install(package, configs)
