@@ -5,13 +5,21 @@ package("libyuv")
 
     add_urls("https://code.elkpi.com/third_party/libyuv.git", {alias = "elkpi"})
     add_urls("https://chromium.googlesource.com/libyuv/libyuv.git", {alias = "chromium"})
-    add_urls("https://github.com/lemenkov/libyuv.git", {alias = "github"})
+    add_urls("https://github.com/lemenkov/libyuv.git", {alias = "git"})
 
     add_versions("elkpi:2023.11.10", "4aaf0f22fd75e21dbb344394185eab198237029d")
     add_versions("elkpi:2023.05.27", "dfee0d31e055b6a5d6b3fb26e861735d1b518c82")
     add_versions("chromium:2023.04.22", "6f4731cdbc7e8b3fae163256dd8a2437508264d4")
     add_versions("chromium:2023.10.27", "31e1d6f896615342d5d5b6bde8f7b50b3fd698dc")
-    add_versions("github:2023.04.22", "6900494d90ae095d44405cd4cc3f346971fa69c9")
+    add_versions("git:2023.04.22", "6900494d90ae095d44405cd4cc3f346971fa69c9")
+
+    -- Versions from LIBYUV_VERSION definition in include/libyuv/version.h
+    -- Pay attention to package commits incrementing this definition
+    add_versions("git:1913", "6f729fbe658a40dfd993fa8b22bd612bb17cde5c")
+    add_versions("git:1891", "611806a1559b92c97961f51c78805d8d9d528c08")
+
+    add_patches("1913", "patches/1913/cmake.patch", "9b61c6a5c26e727d164f06e83a3bf19863f840cd57fcee365429561e640930bf")
+    add_patches("1891", "patches/1891/cmake.patch", "87086566b2180f65ff3d5ef9db7c59a6e51e2592aeeb787e45305beb4cf9d30d")
 
     add_configs("shared", {description = "Build shared library.", default = false, type = "boolean"})
 
@@ -31,11 +39,6 @@ package("libyuv")
             local ndk = package:toolchain("ndk"):config("ndkver")
             assert(ndk and tonumber(ndk) > 22, "package(libyuv): need ndk version > 22")
         end)
-        on_check("linux", function (package)
-            if package:is_arch("arm64") then
-                raise("package(libuv) unsupport compile flags -march=armv9-a+sme")
-            end
-        end)
     end
 
     on_load(function (package)
@@ -50,10 +53,15 @@ package("libyuv")
 
     on_install("!cross", function (package)
         if package:is_plat("iphoneos") then
-            io.replace("CMakeLists.txt",
-                [[STRING(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" arch_lowercase)]],
-                [[set(arch_lowercase "]] .. package:arch() .. [[")]], {plain = true})
+            local patch = [[set(arch_lowercase "]] .. package:arch() .. [[")]]
+            io.replace("CMakeLists.txt", [[STRING(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" arch_lowercase)]], patch, {plain = true})
+            io.replace("CMakeLists.txt", [[string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" arch_lowercase)]], patch, {plain = true})
         end
+        -- fix linux arm64 build error
+        -- -- commit 1724c4be72f32d2f04eead939f7b3f35ad4e39e3
+        -- io.replace("CMakeLists.txt", "-march=armv9-a+sme", "-march=armv9-a+i8mm+sme", {plain = true})
+        io.replace("CMakeLists.txt", "-march=armv9-a+sme", "", {plain = true})
+        io.replace("CMakeLists.txt", "-march=armv9-a+i8mm+sme", "", {plain = true})
 
         local configs = {"-DCMAKE_CXX_STANDARD=14"}
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))

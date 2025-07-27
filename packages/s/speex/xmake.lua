@@ -1,23 +1,23 @@
 package("speex")
     set_homepage("https://www.speex.org/")
-    set_description("Speex voice codec mirror - THIS IS A MIRROR, DEVELOPMENT HAPPENS AT https://gitlab.xiph.org/xiph/speex")
+    set_description("A free codec for free speech")
+    set_license("BSD-3-Clause")
 
-    add_urls("https://github.com/xiph/speex/archive/refs/tags/Speex-$(version).tar.gz", {alias = "github"})
-    add_urls("https://github.com/xiph/speex.git", {alias = "git"})
+    add_urls("https://github.com/xiph/speex/archive/refs/tags/Speex-$(version).tar.gz",
+             "https://github.com/xiph/speex.git")
 
-    add_versions("github:1.2.1", "beaf2642e81a822eaade4d9ebf92e1678f301abfc74a29159c4e721ee70fdce0")
-    add_versions("git:1.2.1", "Speex-1.2.1")
+    add_versions("1.2.1", "beaf2642e81a822eaade4d9ebf92e1678f301abfc74a29159c4e721ee70fdce0")
 
-    add_deps("autoconf", "automake", "libtool")
+    add_patches("1.2.1", "patches/1.2.1/filter-subdirs.patch", "00e740f7dc7d17f1d71206b13c596d61f85e92a44cee39441c9f00f4ad93d045")
+    add_patches("1.2.1", "patches/1.2.1/fix-ac-compile-ifelse.patch", "446babf535de9aa3dae30bbd3983b662a3162cf149280413eb2e483836eb2039")
 
-    on_install(function (package)
-        local configs = {}
+    add_deps("autotools")
+
+    on_install("linux", "macosx", "bsd", "mingw", "wasm", "cross", "iphoneos", "android@linux,macosx", function (package)
+        local configs = {"--disable-binaries"}
         table.insert(configs, "--enable-shared=" .. (package:config("shared") and "yes" or "no"))
-        if package:debug() then
+        if package:is_debug() then
             table.insert(configs, "--enable-debug")
-        end
-        if package:is_plat("linux") and package:config("pic") ~= false then
-            table.insert(configs, "--with-pic")
         end
         import("package.tools.autoconf").install(package, configs)
     end)
