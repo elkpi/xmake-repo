@@ -51,7 +51,7 @@ package("libyuv")
         end
     end)
 
-    on_install("!cross", function (package)
+    on_install(function (package)
         if package:is_plat("iphoneos") then
             local patch = [[set(arch_lowercase "]] .. package:arch() .. [[")]]
             io.replace("CMakeLists.txt", [[STRING(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" arch_lowercase)]], patch, {plain = true})
