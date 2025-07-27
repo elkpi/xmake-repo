@@ -34,6 +34,10 @@ package("libtiff")
 
     add_deps("cmake")
 
+    if is_plat("cross") then
+        add_syslinks("m")
+    end
+
     on_load(function (package)
         for config, dep in pairs(configdeps) do
             if package:config(config) then
@@ -49,7 +53,7 @@ package("libtiff")
         end
     end)
 
-    on_install("!cross", function (package)
+    on_install(function (package)
         io.replace("CMakeLists.txt", "add_subdirectory(man)", "", {plain = true})
         io.replace("CMakeLists.txt", "add_subdirectory(html)", "", {plain = true})
         io.replace("CMakeLists.txt", "add_subdirectory(test)", "", {plain = true})
@@ -67,7 +71,14 @@ package("libtiff")
         for config, dep in pairs(configdeps) do
             table.insert(configs, "-D" .. config .. "=" .. (package:config(config) and "ON" or "OFF"))
         end
-        table.insert(configs, "-Dtiff-tools=" .. (package:config("tools") and "ON" or "OFF"))
+
+        if package:is_plat("cross") then
+            table.insert(configs, "-DCMath_HAVE_LIBM_POW=1")
+            table.insert(configs, "-Dtiff-tools=OFF")
+            table.insert(configs, "-Dtiff-contrib=OFF")
+        else
+            table.insert(configs, "-Dtiff-tools=" .. (package:config("tools") and "ON" or "OFF"))
+        end
         import("package.tools.cmake").install(package, configs)
     end)
 
