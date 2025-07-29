@@ -55,6 +55,7 @@ package("brpc")
         else
             package:add("deps", "protobuf-cpp 3.19.4", {configs = {zlib = true}})
         end
+        package:add("links", "utf8_range", "utf8_validity")
     end)
 
     on_install("linux", "macosx", "cross", function (package)
