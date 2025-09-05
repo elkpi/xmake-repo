@@ -101,13 +101,12 @@ package("protobuf-cpp")
         if package:config("zlib") then
             package:add("deps", "zlib")
         end
-        if package:version():major() == 22 then
+        if package:version():ge("24.0") then
+            package:add("deps", "abseil")
+        elseif package:version():major() == 22 then
             package:add("deps", "abseil 20230125.2")
         elseif package:version():major() == 23 then
             package:add("deps", "abseil 20230802.1")
-        end
-        if package:version():ge("24.0") then
-            package:add("deps", "abseil")
         end
 
         if package:is_plat("windows") and package:config("shared") then
