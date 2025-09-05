@@ -1,6 +1,7 @@
 package("srtp")
     set_homepage("https://github.com/cisco/libsrtp")
     set_description("Library for SRTP (Secure Realtime Transport Protocol)")
+    set_license("BSD-3-Clause")
 
     add_urls("https://github.com/cisco/libsrtp/archive/refs/tags/$(version).tar.gz",
              "https://github.com/cisco/libsrtp.git")
@@ -12,15 +13,34 @@ package("srtp")
 
     add_configs("openssl", {description = "Enable OpenSSL crypto engine", default = true, type = "boolean"})
     add_configs("mbedtls", {description = "Enable MbedTLS crypto engine", default = false, type = "boolean"})
-    add_configs("nss", {description = "Enable NSS crypto engine", default = false, type = "boolean"})
+    add_configs("nss", {description = "Enable NSS crypto engine", default = false, type = "boolean", readonly = true})
     add_configs("webrtc_dep_hdrs", {description = "Enable webrtc depend headers.", default = false, type = "boolean"})
+
+    if is_plat("mingw") and is_subhost("msys") then
+        add_extsources("pacman::libsrtp")
+    elseif is_plat("linux") then
+        add_extsources("pacman::libsrtp", "apt::libsrtp2-dev")
+    elseif is_plat("macosx") then
+        add_extsources("brew::srtp")
+    end
+
+    if is_plat("windows", "mingw") then
+        add_syslinks("ws2_32")
+    end
+
+    add_deps("cmake")
 
     on_load(function (package)
         if package:config("openssl") then
             package:add("deps", "openssl")
         end
+
         if package:version():ge("2.0") then
             package:add("deps", "cmake");
+        end
+
+        if package:config("mbedtls") then
+            package:add("deps", "mbedtls")
         end
     end)
 
@@ -81,4 +101,3 @@ package("srtp")
         end
         assert(package:has_cfuncs("srtp_init", {includes = includes}))
     end)
-
