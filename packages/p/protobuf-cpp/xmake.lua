@@ -100,6 +100,8 @@ package("protobuf-cpp")
 
         if package:version():ge("30.0") then
             package:add("deps", "abseil")
+        elseif package:version():major() == 25 then
+            package:add("deps", "abseil <= 20250814.0")
         elseif package:version():ge("24.0") then
             package:add("deps", "abseil <=20250127.0")
         elseif package:version():major() == 22 then
