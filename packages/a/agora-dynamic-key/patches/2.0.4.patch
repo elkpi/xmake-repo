@@ -1,0 +1,39 @@
+diff --git a/DynamicKey/AgoraDynamicKey/cpp/src/AccessToken.h b/DynamicKey/AgoraDynamicKey/cpp/src/AccessToken.h
+index c177cfb..346dc60 100755
+--- a/DynamicKey/AgoraDynamicKey/cpp/src/AccessToken.h
++++ b/DynamicKey/AgoraDynamicKey/cpp/src/AccessToken.h
+@@ -6,7 +6,7 @@
+ #include <map>
+ #include <string>
+ #include <utility>
+-#include "cpp/src/utils.h"
++#include "utils.h"
+ 
+ namespace agora {
+ namespace tools {
+diff --git a/DynamicKey/AgoraDynamicKey/cpp/src/RtcTokenBuilder.h b/DynamicKey/AgoraDynamicKey/cpp/src/RtcTokenBuilder.h
+index f13f1c8..b5f7476 100755
+--- a/DynamicKey/AgoraDynamicKey/cpp/src/RtcTokenBuilder.h
++++ b/DynamicKey/AgoraDynamicKey/cpp/src/RtcTokenBuilder.h
+@@ -6,7 +6,7 @@
+ #include <map>
+ #include <string>
+ #include <utility>
+-#include "cpp/src/AccessToken.h"
++#include "AccessToken.h"
+ 
+ namespace agora {
+ namespace tools {
+diff --git a/DynamicKey/AgoraDynamicKey/cpp/src/RtmTokenBuilder.h b/DynamicKey/AgoraDynamicKey/cpp/src/RtmTokenBuilder.h
+index bc5f66f..1b203e7 100755
+--- a/DynamicKey/AgoraDynamicKey/cpp/src/RtmTokenBuilder.h
++++ b/DynamicKey/AgoraDynamicKey/cpp/src/RtmTokenBuilder.h
+@@ -6,7 +6,7 @@
+ #include <map>
+ #include <string>
+ #include <utility>
+-#include "cpp/src/AccessToken.h"
++#include "AccessToken.h"
+ 
+ namespace agora {
+ namespace tools {
