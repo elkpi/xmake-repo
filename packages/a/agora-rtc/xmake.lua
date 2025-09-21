@@ -1,7 +1,7 @@
 package("agora-rtc")
     set_kind("library")
     set_homepage("https://doc.shengwang.cn/doc/rtc-server-sdk/cpp/resources")
-
+    set_description("Agora RTC SDK")
 
     if is_host("linux") then
         if is_arch("arm64") then
