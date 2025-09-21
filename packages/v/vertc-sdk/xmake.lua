@@ -1,6 +1,6 @@
 package("vertc-sdk")
     set_kind("library")
-    set_homepage("hhttps://www.volcengine.com/docs/6348/75707")
+    set_homepage("https://www.volcengine.com/docs/6348/75707")
     set_description("Volcengine Real Time Communication SDK")
 
     if is_host("linux") then
