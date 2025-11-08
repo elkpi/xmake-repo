@@ -284,7 +284,11 @@ function get_modified_packages()
             if #packages > 0 and version then
                 local lastpackage = packages[#packages]
                 local splitinfo = lastpackage:split("%s+")
-                table.insert(packages, splitinfo[1] .. " " .. version)
+                if #splitinfo > 1 then
+                    table.insert(packages, splitinfo[1] .. " " .. version)
+                else
+                    packages[#packages] = splitinfo[1] .. " " .. version
+                end
             end
         end
     end
@@ -293,15 +297,7 @@ end
 
 -- @see https://github.com/xmake-io/xmake-repo/issues/6940
 function _lock_packages(packages)
-    local locked_packages = {
-        "flashlight",
-        "systemd",
-        "libxcrypt",
-        "libselinux",
-        "libxls",
-        "openssh",
-        "hashcat"
-    }
+    local locked_packages = {}
     for _, package in ipairs(packages) do
         if table.contains(locked_packages, package) then
             raise("package(%s) has been locked, please do not submit it, @see https://github.com/xmake-io/xmake-repo/issues/6940", package)

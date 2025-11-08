@@ -19,6 +19,7 @@ package("brpc")
     add_versions("1.5.0", "5ce178e3070ecdf9576a8917e3f65d96085f437bfbf9f1d09d46bca1375938cf")
     add_versions("1.3.0", "b9d638b76725552ed11178c650d7fc95e30f252db7972a93dc309a0698c7d2b8")
 
+    add_patches("1.14.1", path.join(os.scriptdir(), "patches", "1.14.1", "cmake.patch"), "04de26217d7fef37cf6e4d072cc65d767cf7d363b936d8cd652235be6f11e0c9")
     add_patches("1.10.0", path.join(os.scriptdir(), "patches", "1.8.0", "cmake.patch"), "315889dcca66331932a8ce90bbdc5f71e336ca39d625ff85a589ee2bf10155ee")
     add_patches("1.8.0", path.join(os.scriptdir(), "patches", "1.8.0", "cmake.patch"), "315889dcca66331932a8ce90bbdc5f71e336ca39d625ff85a589ee2bf10155ee")
     add_patches("1.7.0", path.join(os.scriptdir(), "patches", "1.7.0", "cmake.patch"), "801920d6fcd20f3da68c1846dc22d26d2d320e48b06b6b5bd38bbed11e5ebd2c")
@@ -37,8 +38,8 @@ package("brpc")
     add_deps("cmake")
 
     if is_plat("macosx") then
-        add_frameworks("Foundation", "CoreFoundation", "Security", "CoreGraphics", "CoreText")
-        add_ldflags("-Wl,-U,_ProfilerStart", "-Wl,-U,_ProfilerStop")
+        add_frameworks("Foundation", "CoreFoundation", "Security", "CoreGraphics", "CoreText", "CoreData")
+        add_ldflags("-Wl,-U,_MallocExtension_ReleaseFreeMemory", "-Wl,-U,_ProfilerStart", "-Wl,-U,_ProfilerStop", "-Wl,-U,__Z13GetStackTracePPvii", "-Wl,-U,_RegisterThriftProtocol", "-Wl,-U,_mallctl", "-Wl,-U,_malloc_stats_print")
     elseif is_plat("linux") then
         add_syslinks("rt", "dl")
     end
