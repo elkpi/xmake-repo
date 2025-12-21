@@ -7,6 +7,7 @@ package("joker")
 
     on_install(function (package)
         import("package.tools.xmake").install(package)
+        os.cp("include/joker", package:installdir("include"))
     end)
 
     on_test(function (package)
