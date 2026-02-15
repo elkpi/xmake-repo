@@ -87,6 +87,10 @@ package("brpc")
                 io.replace("CMakeLists.txt", 'set(CMAKE_CXX_STANDARD 11)', 'set(CMAKE_CXX_STANDARD 14)', {plain = true})
             end
         end
+        local pbdep = package:dep("protobuf-cpp")
+        if pbdep and pbdep:version():ge("22.0") then
+            io.replace("CMakeLists.txt", 'set(CMAKE_CXX_STANDARD 11)', 'set(CMAKE_CXX_STANDARD 17)', {plain = true})
+        end
         if package:config("with_thrift") then
             table.insert(configs, "-DWITH_THRIFT=ON")
         end
