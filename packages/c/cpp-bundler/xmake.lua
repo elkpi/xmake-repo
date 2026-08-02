@@ -10,5 +10,20 @@ package("cpp-bundler")
     end)
 
     on_test(function (package)
-        os.vrun("cpp-bundler -h")
+        -- cpp-bundler -h prints usage to stderr and (on older builds) exits 2
+        -- via flag.ErrHelp; treat a runnable binary with usage output as pass.
+        local stderr
+        try
+        {
+            function()
+                _, stderr = os.iorunv("cpp-bundler", {"-h"})
+            end,
+            catch
+            {
+                function(errors)
+                    stderr = errors and (errors.stderr or errors.errors) or nil
+                end
+            }
+        }
+        assert(stderr and stderr:find("Usage", 1, true), "cpp-bundler -h produced no usage output")
     end)
