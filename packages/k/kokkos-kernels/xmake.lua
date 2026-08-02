@@ -6,6 +6,9 @@ package("kokkos-kernels")
     add_urls("https://github.com/kokkos/kokkos-kernels/archive/refs/tags/$(version).tar.gz",
              "https://github.com/kokkos/kokkos-kernels.git")
 
+    add_versions("5.1.1", "d45c30388ff4d4e80edf320f905a6674f4f323a1e2c30d959c596de4623c6644")
+    add_versions("5.1.0", "19bc02c0d758eaa6656732ac23ae4c729c1728fcbf3d740d7e0d368617dffbbf")
+    add_versions("5.0.2", "bd7fc683bbbaa07a3db07419e480d7adcbe691d6ff3f76717e631b11592c0059")
     add_versions("5.0.0", "31a5b8b4b8a36bcc6a424a6f2ad9ccc111dc77304c3ccc735fd4597fba9a03e4")
     add_versions("4.6.00", "22c83eb31d9eed1bbc69d7bd6b3d4646395ff5e4bb50403dcadf98c76945562e")
     add_versions("4.4.00", "6559871c091eb5bcff53bae5a0f04f2298971d1aa1b2c135bd5a2dae3f9376a2")

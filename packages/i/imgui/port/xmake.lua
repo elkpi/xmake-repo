@@ -2,6 +2,7 @@ add_rules("mode.debug", "mode.release")
 add_rules("utils.install.cmake_importfiles")
 set_languages("cxx14")
 
+option("android",          {showmenu = true,  default = false})
 option("dx9",              {showmenu = true,  default = false})
 option("dx10",             {showmenu = true,  default = false})
 option("dx11",             {showmenu = true,  default = false})
@@ -16,6 +17,7 @@ option("sdl3",             {showmenu = true,  default = false})
 option("sdl3_renderer",    {showmenu = true,  default = false})
 option("sdl3_gpu",         {showmenu = true,  default = false})
 option("vulkan",           {showmenu = true,  default = false})
+option("vulkan_no_proto",  {showmenu = true,  default = false}) -- vulkan + IMGUI_IMPL_VULKAN_NO_PROTOTYPES
 option("volk",             {showmenu = true,  default = false})
 option("win32",            {showmenu = true,  default = false})
 option("osx",              {showmenu = true,  default = false})
@@ -42,7 +44,7 @@ if has_config("sdl3") or has_config("sdl3_renderer") or has_config("sdl3_gpu") t
     add_requires("libsdl3")
 end
 
-if has_config("vulkan") then
+if has_config("vulkan") or has_config("vulkan_no_proto") then
     add_requires("vulkan-headers")
 end
 
@@ -66,6 +68,11 @@ target("imgui")
 
     if is_kind("shared") and is_plat("windows", "mingw") then
         add_defines("IMGUI_API=__declspec(dllexport)")
+    end
+
+    if has_config("android") then
+        add_files("backends/imgui_impl_android.cpp")
+        add_headerfiles("(backends/imgui_impl_android.h)")
     end
 
     if has_config("dx9") then
@@ -150,17 +157,19 @@ target("imgui")
         add_packages("libsdl3")
     end
 
-    if has_config("vulkan") then
+    if has_config("volk") or has_config("vulkan_no_proto") or has_config("vulkan") then
         add_files("backends/imgui_impl_vulkan.cpp")
         add_headerfiles("(backends/imgui_impl_vulkan.h)")
-        add_packages("vulkan-headers")
-    end
-
-    if has_config("volk") then
-        add_files("backends/imgui_impl_vulkan.cpp")
-        add_headerfiles("(backends/imgui_impl_vulkan.h)")
-        add_packages("volk")
-        add_defines("IMGUI_IMPL_VULKAN_USE_VOLK")
+        
+        if has_config("volk") then
+            add_packages("volk")
+            add_defines("IMGUI_IMPL_VULKAN_USE_VOLK")
+        elseif has_config("vulkan_no_proto") then
+            add_packages("vulkan-headers")
+            add_defines("IMGUI_IMPL_VULKAN_NO_PROTOTYPES")
+        elseif has_config("vulkan") then
+            add_packages("vulkan-headers")
+        end
     end
 
     if has_config("win32") then

@@ -55,7 +55,7 @@ package("rmlui")
             #include <cstdint>
             ]], {plain = true})
         end
-        
+
         local configs = {"-DBUILD_TESTING=OFF", "-DBUILD_SAMPLES=OFF"}
         if package:is_plat("macosx") and package:is_arch("arm64") then
             table.insert(configs, "-DCMAKE_OSX_ARCHITECTURES=arm64")
@@ -63,7 +63,11 @@ package("rmlui")
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         table.insert(configs, "-DNO_FONT_INTERFACE_DEFAULT=" .. (package:config("freetype") and "OFF" or "ON"))
-        table.insert(configs, "-DBUILD_LUA_BINDINGS=" .. (package:config("lua") and "ON" or "OFF"))
+        if package:version() and package:version():le("6.0") then
+            table.insert(configs, "-DBUILD_LUA_BINDINGS=" .. (package:config("lua") and "ON" or "OFF"))
+        else
+            table.insert(configs, "-DRMLUI_LUA_BINDINGS=" .. (package:config("lua") and "ON" or "OFF"))
+        end
         table.insert(configs, "-DENABLE_SVG_PLUGIN=" .. (package:config("svg") and "ON" or "OFF"))
         table.insert(configs, "-DENABLE_LOTTIE_PLUGIN=" .. (package:config("lottie") and "ON" or "OFF"))
         table.insert(configs, "-DDISABLE_RTTI_AND_EXCEPTIONS=" .. (package:config("rtti") and "OFF" or "ON"))
@@ -80,5 +84,5 @@ package("rmlui")
             void test() {
                 Rml::Context* context = Rml::CreateContext("default", Rml::Vector2i(640, 480));
             }
-        ]]}, {configs = {languages = "c++14"}}))
+        ]]}, {configs = {languages = (not package:version() or package:version():ge("6.2")) and "c++17" or "c++14"}}))
     end)

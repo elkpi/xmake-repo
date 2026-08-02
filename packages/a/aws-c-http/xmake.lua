@@ -6,6 +6,11 @@ package("aws-c-http")
     add_urls("https://github.com/awslabs/aws-c-http/archive/refs/tags/$(version).tar.gz",
              "https://github.com/awslabs/aws-c-http.git")
 
+    add_versions("v0.11.0", "4ccbdd33c798b590288330dec9e93abe2ff6cfb198b7a4db036c9d362f2e6506")
+    add_versions("v0.10.15", "37e7f9806b2877671cfa2bde078c50b78a358f35ef5a07f7bd2ca1beab5b5a9f")
+    add_versions("v0.10.14", "d44866920b89e07b9db17e9c84587c6dca6c796d691597f1bee5e17b16b79d39")
+    add_versions("v0.10.13", "d8352e7a1fb1996694a4dc31219ce03452882abf8d0858c104727f975e11b9c7")
+    add_versions("v0.10.11", "b375e9630aa93830f54b544298745fd30a6cb3d09e5ff8473c7455a1599bf2b7")
     add_versions("v0.10.10", "4590538bb42a2b1f66fbae9f2ff867fb13e404e5565cdfa7d0a8af5a8258f8f6")
     add_versions("v0.10.9", "472653537a6c2e9dbf44a4e14991f65e61e65d43c120efe2c5f06b7f57363a2c")
     add_versions("v0.10.7", "ce9e71c3eae67b1c6c0149278e0d0929a7d928c3547de64999430c8592864ad4")
@@ -34,7 +39,7 @@ package("aws-c-http")
         end
     end)
 
-    on_install("!wasm and (!mingw or mingw|!i386)", function (package)
+    on_install("windows", "linux", "bsd", "cross", "android", "mingw|!i386", "macosx|arm64", function (package)
         if package:is_plat("windows") and package:config("shared") then
             package:add("defines", "USE_WINDOWS_DLL_SEMANTICS", "AWS_HTTP_USE_IMPORT_EXPORT")
         end
@@ -53,7 +58,7 @@ package("aws-c-http")
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         table.insert(configs, "-DENABLE_SANITIZERS=" .. (package:config("asan") and "ON" or "OFF"))
         if package:is_plat("windows") then
-            table.insert(configs, "-DAWS_STATIC_MSVC_RUNTIME_LIBRARY=" .. (package:config("vs_runtime"):startswith("MT") and "ON" or "OFF"))
+            table.insert(configs, "-DAWS_STATIC_MSVC_RUNTIME_LIBRARY=" .. (package:runtimes():startswith("MT") and "ON" or "OFF"))
         end
         import("package.tools.cmake").install(package, configs)
     end)

@@ -10,11 +10,17 @@ package("swig")
         add_versions("3.0.12", "21ce6cbe297a56b697ef6e7e92a83e75ca41dedc87e48282ab444591986c35f5")
         add_versions("4.0.2", "daadb32f19fe818cb9b0015243233fc81584844c11a48436385e87c050346559")
         add_versions("4.1.1", "2ec3107e24606db535d77ef3dbf246dc6eccbf1d5c868dce365d7f7fb19a1a51")
+        add_versions("4.2.1", "2ca18cfb4aa78a59a979c3f5c47ea9f19b6ac0eb7714ca5d1df8c01d0029e3a9")
+        add_versions("4.3.1", "7ea5197c557af20b2f7780ffcfe803bbe0e2009f5846874112aea37e5f693417")
+        add_versions("4.4.1", "ce01474c81120eab381491d8d45cbcce4768fd1e5c23ffc7654b522702769598")
     else
         add_urls("https://sourceforge.net/projects/swig/files/swig/swig-$(version)/swig-$(version).tar.gz")
         add_versions("3.0.12", "7cf9f447ae7ed1c51722efc45e7f14418d15d7a1e143ac9f09a668999f4fc94d")
         add_versions("4.0.2", "d53be9730d8d58a16bf0cbd1f8ac0c0c3e1090573168bfa151b01eb47fa906fc")
         add_versions("4.1.1", "2af08aced8fcd65cdb5cc62426768914bedc735b1c250325203716f78e39ac9b")
+        add_versions("4.2.1", "fa045354e2d048b2cddc69579e4256245d4676894858fcf0bab2290ecf59b7d8")
+        add_versions("4.3.1", "44fc829f70f1e17d635a2b4d69acab38896699ecc24aa023e516e0eabbec61b8")
+        add_versions("4.4.1", "40162a706c56f7592d08fd52ef5511cb7ac191f3593cf07306a0a554c6281fcf")
     end
 
     on_load("@macosx", "@linux", function (package)

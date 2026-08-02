@@ -54,6 +54,9 @@ package("ffmpeg")
     add_configs("iconv",            {description = "Enable libiconv library.", default = false, type = "boolean"})
     add_configs("vaapi",            {description = "Enable vaapi library.", default = false, type = "boolean"})
     add_configs("vdpau",            {description = "Enable vdpau library.", default = false, type = "boolean"})
+    add_configs("nvenc",            {description = "Enable nvidia nvenc library.", default = false, type = "boolean"})
+    add_configs("nvdec",            {description = "Enable nvidia nvdec library.", default = false, type = "boolean"})
+
     add_configs("hardcoded-tables", {description = "Enable hardcoded tables.", default = true, type = "boolean"})
     add_configs("avresample",       {description = "Enable libavresample.", default = false, type = "boolean"})
     if is_plat("linux") then
@@ -116,6 +119,9 @@ package("ffmpeg")
             libaom      = "aom",
             libsvtav1   = "svt-av1",
             libdav1d    = "dav1d",
+            nvenc       = "nv-codec-headers",
+            nvdec       = "nv-codec-headers",
+            ffplay      = "libsdl2",
         }
         for name, dep in pairs(configdeps) do
             if package:config(name) then
@@ -157,7 +163,7 @@ package("ffmpeg")
         end
     end)
 
-    on_install("windows", "mingw@windows,linux,cygwin,msys", "linux", "macosx", "android", "iphoneos", "cross", function (package)
+    on_install("windows", "mingw@windows,linux,cygwin,msys", "cross", "linux", "macosx", "android", "iphoneos", function (package)
         local configs = {"--enable-version3",
                          "--disable-doc"}
         if package:config("gpl") then
@@ -233,7 +239,7 @@ package("ffmpeg")
             else
                 raise("unknown mingw arch " .. package:arch())
             end
-        elseif package:is_plat("linux") then
+        elseif package:is_plat("linux", "cross") then
             table.insert(configs, "--target-os=linux")
             table.insert(configs, "--enable-pthreads")
             if package:has_tool("cxx", "clang") then
@@ -391,6 +397,14 @@ package("ffmpeg")
             end
             os.vrunv("make", argv)
             os.vrun("make install")
+        elseif package:is_plat("cross") then
+            table.insert(configs, "--cc=" .. package:build_getenv("cc"))
+            table.insert(configs, "--ld=" .. package:build_getenv("ld"))
+            table.insert(configs, "--ar=" .. package:build_getenv("ar"))
+            table.insert(configs, "--as=" .. package:build_getenv("as"))
+            table.insert(configs, "--cxx=" .. package:build_getenv("cxx"))
+            table.insert(configs, "--strip=" .. package:build_getenv("strip"))
+            import("package.tools.autoconf").install(package, configs, opt)
         else
             local opt = {}
             if package:is_plat("macosx") and package:is_arch("arm.*") and package:config("shared") then
