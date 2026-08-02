@@ -54,7 +54,7 @@ package("brpc")
             package:add("deps", "thrift")
         end
         if package:version():ge("1.16.0") then
-            package:add("deps", "protobuf-cpp", {configs = {zlib = true, shared = true}})
+            package:add("deps", "protobuf-cpp <34", {configs = {zlib = true, shared = true}})
         elseif package:version():ge("1.12.0") then
             package:add("deps", "protobuf-cpp <26", {configs = {zlib = true, shared = true}})
         elseif package:version():ge("1.9.0") then
