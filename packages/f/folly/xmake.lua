@@ -32,6 +32,7 @@ package("folly")
     add_patches("<=2022.08.29", path.join(os.scriptdir(), "patches", "2021.06.28", "regex.patch"), "6a77ade9f48dd9966d3f7154e66ca8a5c030ae2b6d335cbe3315784aefd8f495")
     add_patches("<=2024.10.07", path.join(os.scriptdir(), "patches", "2023.11.20", "pkgconfig.patch"), "6838623d453418569853f62ad97c729e802a120c13d804aabba6d6455997e674")
     add_patches("<=2024.10.07", path.join(os.scriptdir(), "patches", "2023.11.20", "msvc.patch"), "1ee01c75528bd42736541022af461e44af3031c01d62c9342006f0abc0f44f2d")
+    add_patches("2025.07.28", path.join(os.scriptdir(), "patches", "2025.07.28", "fmt12.patch"), "a568f8562b4b285e57c6089a7e359187dd08f20d2ee61712bcbcfe4aa6488a37")
 
     if is_plat("windows") then
         add_configs("shared", {description = "Build shared library.", default = false, type = "boolean", readonly = true})
