@@ -12,5 +12,7 @@ package("protoc")
     on_install("@windows", "@linux", "@macosx", "@bsd", "@msys", function (package) end)
 
     on_test(function (package)
-        os.vrun("protoc --version")
+        if not package:is_cross() then
+            os.vrun("protoc --version")
+        end
     end)
