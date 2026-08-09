@@ -3,7 +3,29 @@ package("idl_elkpi")
     add_deps("protobuf-cpp")
 
     add_urls("git@code.elkpi.com:idl/services.git")
-    add_versions("main", "dd939014854dadc3f3ce50bd4fc8c353e0290575")
+
+    set_policy("package.install_always", true)
+
+    on_download(function (package, opt)
+        import("devel.git")
+
+        local sourcedir = opt.sourcedir
+        local packagedir = path.join(sourcedir, package:name())
+        local longpaths = package:policy("platform.longpaths")
+        os.tryrm(sourcedir)
+        os.mkdir(sourcedir)
+
+        local commit = package:commit()
+        if commit then
+            git.clone(opt.url, {treeless = true, checkout = false, longpaths = longpaths, outputdir = packagedir})
+            git.checkout(commit, {repodir = packagedir})
+            if os.isfile(path.join(packagedir, ".gitmodules")) then
+                git.submodule.update({init = true, recursive = true, longpaths = longpaths, repodir = packagedir})
+            end
+        else
+            git.clone(opt.url, {depth = 1, recursive = true, shallow_submodules = true, longpaths = longpaths, branch = "main", outputdir = packagedir})
+        end
+    end)
 
     on_install(function (package)
         local configs = {}
