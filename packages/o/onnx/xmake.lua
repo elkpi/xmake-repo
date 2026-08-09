@@ -21,7 +21,8 @@ package("onnx")
     add_configs("exceptions", {description = "Enable exception handling", default = true, type = "boolean"})
     add_configs("registration", {description = "Enable static registration for onnx operator schemas.", default = true, type = "boolean"})
 
-    add_deps("cmake", "protoc", "python", {kind = "binary"})
+    add_deps("cmake", "python", {kind = "binary"})
+    add_deps("protoc", {kind = "binary", host = true, private = true})
     add_deps("protobuf-cpp")
 
     if is_plat("windows") then

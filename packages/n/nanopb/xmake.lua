@@ -12,7 +12,8 @@ package("nanopb")
 
     add_includedirs("include", "include/nanopb")
 
-    add_deps("cmake", "protoc")
+    add_deps("cmake")
+    add_deps("protoc", {kind = "binary", host = true, private = true})
 
     on_load(function (package)
         if package:config("generator") then

@@ -17,8 +17,8 @@ package("zmqpb")
     add_versions("0.10.4", "89844672229e4e4a75ddec65bdb1e2e825ef5f4b56667f40a29ec68ff215be45")
     add_versions("0.10.5", "28db7f721d4d63da5f911af369265fdaf63c604858416d32207bc50869dade6f")
 
-    add_deps("cppzmq")
-    add_deps("protoc", "protobuf-cpp")
+    add_deps("cppzmq", "protobuf-cpp")
+    add_deps("protoc", {kind = "binary", host = true, private = true})
 
     on_load("windows", "macosx", "linux", function (package)
         if not package:gitref() and package:version():lt("0.3") then

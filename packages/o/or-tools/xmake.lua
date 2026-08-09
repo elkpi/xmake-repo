@@ -19,7 +19,8 @@ package("or-tools")
 
     add_links("ortools_flatzinc", "ortools")
 
-    add_deps("cmake", "protoc")
+    add_deps("cmake")
+    add_deps("protoc", {kind = "binary", host = true, private = true})
     add_deps("zlib", "bzip2", "eigen", "re2")
     add_deps("protobuf-cpp", {configs = {zlib = true}})
 
@@ -43,10 +44,6 @@ package("or-tools")
             -- Fix for RHEL/CentOS/Fedora system zlib
             io.replace("cmake/system_deps.cmake", "find_package(ZLIB REQUIRED)", "find_package(ZLIB REQUIRED MODULE)", {plain = true})
         end
-        if package:is_cross() then
-            os.vcp(package:dep("protoc"):dep("protobuf-cpp"):installdir("bin/*.exe"), package:dep("protobuf-cpp"):installdir("bin"))
-        end
-
         local configs = {
             "-DBUILD_TESTING=OFF",
             "-DBUILD_EXAMPLES=OFF",
@@ -57,7 +54,9 @@ package("or-tools")
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         if package:is_cross() then
-            table.insert(configs, "-DOR_TOOLS_PROTOC_EXECUTABLE=" .. path.unix(package:dep("protoc"):dep("protobuf-cpp"):installdir("bin/protoc")))
+            local protoc = package:dep("protoc")
+            local protoc_name = is_host("windows") and "protoc.exe" or "protoc"
+            table.insert(configs, "-DOR_TOOLS_PROTOC_EXECUTABLE=" .. path.unix(protoc:installdir("bin/" .. protoc_name)))
         end
 
         table.insert(configs, "-DUSE_COINOR=" .. (package:config("coin_or") and "ON" or "OFF"))
