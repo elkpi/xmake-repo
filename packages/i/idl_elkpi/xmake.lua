@@ -4,7 +4,11 @@ package("idl_elkpi")
 
     add_urls("git@code.elkpi.com:idl/services.git")
 
-    set_policy("package.install_always", true)
+    on_load(function (package)
+        if not package:commit() then
+            package:set("policy", "package.install_always", true)
+        end
+    end)
 
     on_download(function (package, opt)
         import("devel.git")
@@ -23,7 +27,11 @@ package("idl_elkpi")
                 git.submodule.update({init = true, recursive = true, longpaths = longpaths, repodir = packagedir})
             end
         else
-            git.clone(opt.url, {depth = 1, recursive = true, shallow_submodules = true, longpaths = longpaths, branch = "main", outputdir = packagedir})
+            local branch = package:branch()
+            if not branch or branch == "@default" then
+                branch = "main"
+            end
+            git.clone(opt.url, {depth = 1, recursive = true, shallow_submodules = true, longpaths = longpaths, branch = branch, outputdir = packagedir})
         end
     end)
 
