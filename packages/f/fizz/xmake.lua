@@ -17,6 +17,7 @@ package("fizz")
     add_versions("2024.07.01", "002bca2765cb0889ec535eeb1950acf93af57638a2da9b2deacc522113625fcc")
     add_versions("2024.07.08", "dd80231fb79760ef0b15394364ddbe35d4da82a7e07238dbaaf2f98f267d3938")
     add_versions("2024.07.15", "44da982621aa91f15f5b2ec7a27510aab4650383b3a135372586501f3f44fc6c")
+    add_versions("2026.08.03", "0792d29002e721fcaa9e8859afd41ff4c0727f9e299e035796264fec1eb61f93")
 
     add_deps("cmake", "folly", "libsodium", "liboqs")
 
@@ -24,7 +25,7 @@ package("fizz")
         os.cd("fizz")
         local configs = {"-DBUILD_TESTS=OFF",
                          "-DBUILD_EXAMPLES=OFF",
-                         "-DCMAKE_CXX_STANDARD=17",
+                         "-DCMAKE_CXX_STANDARD=20",
                          "-DFIZZ_HAVE_OQS=TRUE"}
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
@@ -32,13 +33,27 @@ package("fizz")
     end)
 
     on_test(function (package)
-        assert(package:check_cxxsnippets({test = [[
-            #include "fizz/experimental/crypto/exchange/OQSKeyExchange.h"
-            void test() {
-                auto clientKex = fizz::OQSClientKeyExchange(OQS_KEM_alg_kyber_768);
-                auto serverKex = fizz::OQSServerKeyExchange(OQS_KEM_alg_kyber_768);
-                clientKex.generateKeyPair();
-                serverKex.generateKeyPair();
-            }
-        ]]}, {configs = {languages = "c++17"}}))
+        if package:version():ge("2026.08.03") then
+            assert(package:check_cxxsnippets({test = [[
+                #include <memory>
+                #include "fizz/backend/liboqs/OQSKeyExchange.h"
+                void test() {
+                    std::unique_ptr<fizz::liboqs::OQSClientKeyExchange> clientKex;
+                    std::unique_ptr<fizz::liboqs::OQSServerKeyExchange> serverKex;
+                    fizz::Error error;
+                    fizz::liboqs::OQSClientKeyExchange::create(clientKex, error, OQS_KEM_alg_kyber_768);
+                    fizz::liboqs::OQSServerKeyExchange::create(serverKex, error, OQS_KEM_alg_kyber_768);
+                }
+            ]]}, {configs = {languages = "c++20"}}))
+        else
+            assert(package:check_cxxsnippets({test = [[
+                #include "fizz/experimental/crypto/exchange/OQSKeyExchange.h"
+                void test() {
+                    auto clientKex = fizz::OQSClientKeyExchange(OQS_KEM_alg_kyber_768);
+                    auto serverKex = fizz::OQSServerKeyExchange(OQS_KEM_alg_kyber_768);
+                    clientKex.generateKeyPair();
+                    serverKex.generateKeyPair();
+                }
+            ]]}, {configs = {languages = "c++20"}}))
+        end
     end)

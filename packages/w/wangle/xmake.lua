@@ -17,6 +17,7 @@ package("wangle")
     add_versions("2024.07.01", "596dff77b6d6adef64e7b86f0f3e019c2ac787c92da0ddc18fbdaa4eca02cb3d")
     add_versions("2024.07.08", "b620ba5dee2f6c47c1d3002cb795524b1efe30f2689088000f010ecc0f9b03b2")
     add_versions("2024.07.15", "0b48e84db224ff090ab005ae8824af56d71cc3f86d05e996cae33235e6b0ccd0")
+    add_versions("2026.08.03", "c72bfcb372d8b1fc8f5876c4cf89d1e48b641375ba83d47839139d70d68c8f12")
 
     add_deps("cmake", "folly", "fizz")
 
@@ -24,7 +25,7 @@ package("wangle")
         os.cd("wangle")
         local configs = {"-DBUILD_TESTS=OFF",
                          "-DBUILD_EXAMPLES=OFF",
-                         "-DCMAKE_CXX_STANDARD=17"}
+                         "-DCMAKE_CXX_STANDARD=20"}
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         import("package.tools.cmake").install(package, configs)
@@ -37,5 +38,5 @@ package("wangle")
             void test() {
                 wangle::FilePoller poller(std::chrono::milliseconds(1));
             }
-        ]]}, {configs = {languages = "c++17"}}))
+        ]]}, {configs = {languages = "c++20"}}))
     end)

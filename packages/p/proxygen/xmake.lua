@@ -16,13 +16,16 @@ package("proxygen")
     add_versions("2024.07.01", "eb5141c6e972b3957a15ab90feb3d56b68061b2ca8d463fe84776cce5c9629bb")
     add_versions("2024.07.08", "3980eceba8a353222f831a411feeeec8f4e8b846278abb915f20865765a2edbf")
     add_versions("2024.07.15", "ab26ec9184980edf709547af5dd7f52030f60d2d4474b269c93a96e809c10c5f")
+    add_versions("2026.08.03", "57f4f6fd173cb8f27a49f6f8a8f0e0021786ae2d873be76422c187951dc87b0e")
 
-    add_deps("cmake", "folly", "fizz", "wangle", "mvfst", "gperf", "python")
+    add_patches("2026.08.03", path.join(os.scriptdir(), "patches", "2026.08.03", "gflags.patch"), "146c5e52509fd1ce434a878ec2bd4c2d34cd16918c36fdec778452c791e7e35a")
+
+    add_deps("cmake", "folly", "fizz", "wangle", "mvfst", "c-ares", "gperf", "python")
 
     on_install("linux", function (package)
         local configs = {"-DBUILD_TESTS=OFF",
                          "-DBUILD_EXAMPLES=OFF",
-                         "-DCMAKE_CXX_STANDARD=17"}
+                         "-DCMAKE_CXX_STANDARD=20"}
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         import("package.tools.cmake").install(package, configs)
@@ -36,5 +39,5 @@ package("proxygen")
                 options.threads = 4;
                 proxygen::HTTPServer server(std::move(options));
             }
-        ]]}, {configs = {languages = "c++17"}}))
+        ]]}, {configs = {languages = "c++20"}}))
     end)

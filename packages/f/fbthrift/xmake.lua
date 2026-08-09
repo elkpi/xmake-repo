@@ -16,18 +16,19 @@ package("fbthrift")
     add_versions("2024.07.01", "fa2302fdabf54780213cc3c5b7047226d7d9b91b8e1b9528330f1041c16b25eb")
     add_versions("2024.07.08", "5efada565a85057824c58784dedd2600a03e531d526021bfe8bb8b655f56f09e")
     add_versions("2024.07.15", "2671ebe49d6d379cc0f43c95c08a173fd6da6f04a9f748acdcda4d7a185f27f4")
+    add_versions("2026.08.03", "7649cdbcdcedd36159d6de089dc2c5bc51e93f724ef581371b51fce906a9df85")
 
-    add_deps("cmake", "folly", "fizz", "wangle", "mvfst", "zstd", "python")
+    add_deps("cmake", "folly", "fizz", "wangle", "mvfst", "zstd", "xxhash", "python")
 
     on_install("linux", function (package)
         local configs = {"-DBUILD_TESTS=OFF",
                          "-DBUILD_EXAMPLES=OFF",
-                         "-DCMAKE_CXX_STANDARD=17"}
+                         "-DCMAKE_CXX_STANDARD=20"}
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         import("package.tools.cmake").install(package, configs)
     end)
 
     on_test(function (package)
-        assert(package:has_cxxfuncs("apache::thrift::detail::validate_bool(0)", {includes = "thrift/lib/cpp2/protocol/Protocol.h", configs = {languages = "c++17"}}))
+        assert(package:has_cxxfuncs("apache::thrift::detail::validate_bool(0)", {includes = "thrift/lib/cpp2/protocol/Protocol.h", configs = {languages = "c++20"}}))
     end)
