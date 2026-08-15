@@ -4,6 +4,7 @@ package("spandsp")
 
     add_urls("https://github.com/freeswitch/spandsp.git")
     add_urls("git@code.elkpi.com:third_party/spandsp.git")
+    add_versions("v3.1.1", "8f1e1646bdec99eac5fd2cd92c35563f736b9b89")
     add_versions("2022.01.27", "e59ca8fb8b1591e626e6a12fdc60a2ebe83435ed")
 
     add_deps("autoconf", "automake", "libtool")
@@ -36,6 +37,9 @@ package("spandsp")
                 end
             end
         end
+
+        -- The V.34 probe generator includes spandsp.h, so it needs dependency include paths too.
+        io.replace("src/Makefile.am", "$(CC_FOR_BUILD) -o make_v34_probe_signals", "$(CC_FOR_BUILD) $(CFLAGS) -o make_v34_probe_signals", {plain = true})
 
         import("package.tools.autoconf").install(package, configs, {cflags = cflags, ldflags = ldflags})
     end)
