@@ -6,6 +6,7 @@ package("sofia-sip")
     add_urls("https://github.com/freeswitch/sofia-sip/archive/refs/tags/$(version).tar.gz",
              "https://github.com/freeswitch/sofia-sip.git")
 
+    add_versions("v1.13.18", "d2ad4e64753a7c9843b766b8de8081d9c1d7acfaeb53c12b3aed7fdb9235766c")
     add_versions("v1.13.17", "daca3d961b6aa2974ad5d3be69ed011726c3e4d511b2a0d4cb6d878821a2de7a")
     add_versions("v1.13.16", "125a9653bea1fc1cb275e4aec3445aa2deadf1fe3f1adffae9559d2349bfab36")
     add_versions("v1.13.14", "a517e31c6a406af3d7ec8cb0154e46ad12fbcb54dadfc3deada5d97bdbd9cc5a")
