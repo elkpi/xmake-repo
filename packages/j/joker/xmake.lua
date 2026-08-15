@@ -8,6 +8,7 @@ package("joker")
     add_versions("0.0.3", "b7b020982b53978036e7fd6b806cfd3d70f3040a")
     add_versions("0.0.4", "cb76adcc72ed284e60f39773036370034c775ab9")
     add_versions("0.0.5", "a4a6313f4ae9a6d33ff1cd60a3d2bbfadb870963")
+    add_versions("0.0.6", "134f3b42f6388ef680b3544641bdb01f4005b018")
 
     on_install(function (package)
         import("package.tools.xmake").install(package)
