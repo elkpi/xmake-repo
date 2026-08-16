@@ -2,8 +2,10 @@ package("libsv")
     set_homepage("https://github.com/uael/sv")
     set_description("libsv - Public domain cross-platform semantic versioning in c99")
 
-    add_urls("https://github.com/uael/sv.git")
-    add_versions("2021.11.27", "10ee6a807466a5e61309201caea360a113ad3862")
+    add_urls("https://github.com/uael/sv/archive/refs/tags/v$(version).tar.gz")
+    add_urls("https://github.com/uael/sv.git", {alias = "git"})
+    add_versions("1.2", "003ca74f3485fd1a4ab809413b1765b91d4314355d244264c98546ad2556cc99")
+    add_versions("git:1.2", "v1.2")
 
     on_install(function (package)
         local configs = {}
